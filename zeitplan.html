@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zeitplan · Bremer BildungsBarcamp</title>
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=noto-sans:400,600,700,800">
+<link rel="stylesheet" href="barcamp.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="taskcards.js"></script>
+<style>
+  /* Zeitplan: links der Tagesablauf, rechts „Jetzt“, „Danach“ und QR-Code */
+  .main { flex:1; min-height:0; display:grid; grid-template-columns:1.45fr 1fr; gap:2vw; }
+  .agenda { display:flex; flex-direction:column; }
+  .agenda .list { flex:1; min-height:0; display:flex; flex-direction:column; gap:.35em; margin-top:1.6vh; overflow:hidden; }
+  .item { display:grid; grid-template-columns:4.2em 1fr auto; align-items:center; gap:.8em; padding:.38em .7em; border-radius:12px; line-height:1.2; }
+  .item .t { font-weight:800; font-variant-numeric:tabular-nums; }
+  .item .x { font-weight:600; }
+  .item .x small { display:block; font-weight:400; color:var(--muted); font-size:.68em; }
+  .item .s { font-size:.7em; font-weight:800; white-space:nowrap; }
+  .item.past { opacity:.45; }
+  .item.past .s::before { content:"✓"; color:var(--green); }
+  .item.now { background:var(--red); color:#fff; box-shadow:0 6px 18px rgba(184,37,58,.3); transform:scale(1.015); }
+  .item.now .x small { color:#ffd9de; }
+  .item.next { background:#fff3cd; }
+  .item.end .x { color:var(--muted); }
+  .side { display:flex; flex-direction:column; gap:2vh; min-height:0; }
+  .nowcard h1 { font-size:clamp(28px,3.6vw,72px); }
+  .nowcard .when { font-weight:800; font-size:clamp(16px,1.8vw,34px); margin-top:1vh; }
+  .nowcard .rest { color:var(--muted); font-size:clamp(14px,1.4vw,26px); margin-top:.6vh; }
+  .bar { height:12px; background:#eee; border-radius:99px; overflow:hidden; margin-top:1.6vh; }
+  .bar i { display:block; height:100%; background:var(--red); border-radius:99px; transition:width 1s linear; }
+  .nextcard .lbl { color:var(--muted); font-weight:700; font-size:clamp(13px,1.2vw,22px); }
+  .nextcard .txt { font-weight:800; font-size:clamp(18px,2vw,40px); margin-top:.5vh; }
+  .qrcard { display:flex; align-items:center; gap:1.5vw; margin-top:auto; }
+  .qrcard .qr { width:16vh; flex:none; border:3px solid var(--grey); border-radius:12px; padding:4px; }
+  .qrcard .qr svg { display:block; width:100%; height:auto; }
+  .qrcard b { color:var(--red); font-size:clamp(16px,1.6vw,30px); display:block; }
+  .qrcard span { color:var(--muted); font-size:clamp(12px,1.1vw,20px); }
+</style>
+</head>
+<body>
+<div id="scene" aria-hidden="true">
+  <div class="wolke" style="top:7vh;--w:15vw;--t:150s;--d:-30s"></div>
+  <div class="wolke" style="top:20vh;--w:10vw;--t:115s;--d:-80s"></div>
+  <svg class="hills" viewBox="0 0 1600 340" preserveAspectRatio="none">
+    <path d="M0 210 C 260 120, 520 140, 760 190 S 1240 260, 1600 150 L1600 340 L0 340 Z" fill="var(--hill1)"/>
+    <path d="M0 290 C 300 230, 620 250, 900 280 S 1350 200, 1600 120 L1600 340 L0 340 Z" fill="var(--hill2)"/>
+  </svg>
+</div>
+<div id="app"><div class="loading">Lade Zeitplan …</div></div>
+
+<script>
+const C = BC.conf();
+let P = null, lastOk = null, err = '';
+
+function render() {
+  if (!P) return;
+  const now = BC.nowSec(C), nowM = Math.floor(now / 60);
+  const items = P.agenda.length ? P.agenda : fromSlots(P.slots);
+  // aktueller Punkt: hat begonnen und ist noch nicht vorbei („ENDE“ selbst ist nie aktuell;
+  // ein letzter Punkt ohne Folgepunkt gilt 60 Minuten)
+  const cur = items.find(it => !it.isEnd && nowM >= it.start && nowM < (it.end != null ? it.end : it.start + 60)) || null;
+  const nxt = items.find(it => it.start > nowM && !it.isEnd) || null;
+  const endItem = items.find(it => it.isEnd);
+  const over = endItem ? nowM >= endItem.start : (items.length && nowM >= (items[items.length - 1].end || items[items.length - 1].start + 60));
+
+  // Zusatzinfo bei Session-Blöcken: wie viele Sessions laufen
+  const extra = it => {
+    const m = it.text.match(/session[\s-]*block\s*(\d+)/i);
+    if (!m) return '';
+    const s = P.slots[+m[1] - 1]; if (!s) return '';
+    const n = P.sessions.filter(x => x.slot === +m[1] - 1).length;
+    return n ? `${n} Sessions in ${n} Räumen` : '';
+  };
+
+  const list = items.map(it => {
+    const cls = it === cur ? 'now' : it === nxt ? 'next' : (it.end != null && nowM >= it.end) || (it.isEnd && over) ? 'past' : '';
+    const st = it === cur ? 'JETZT' : it === nxt ? 'als Nächstes' : '';
+    const ex = extra(it);
+    return `<div class="item ${cls}${it.isEnd ? ' end' : ''}"><span class="t">${BC.fmt(it.start)}</span>
+      <span class="x">${BC.esc(it.text)}${ex ? `<small>${ex}</small>` : ''}</span><span class="s">${st}</span></div>`;
+  }).join('');
+
+  let nowHTML;
+  if (cur) {
+    const endM = cur.end != null ? cur.end : cur.start + 30;
+    const pct = Math.min(100, Math.max(0, (now - cur.start * 60) / ((endM - cur.start) * 60) * 100));
+    const left = Math.max(0, Math.ceil((endM * 60 - now) / 60));
+    nowHTML = `<span class="pill">Jetzt</span><h1 class="big">${BC.esc(cur.text)}</h1>
+      <div class="when">${BC.fmt(cur.start)}${cur.end != null ? '–' + BC.fmt(cur.end) : ''} Uhr</div>
+      <div class="rest">${cur.end != null ? 'noch ' + left + ' Min.' : ''}</div><div class="bar"><i style="width:${pct}%"></i></div>`;
+  } else if (over) {
+    nowHTML = `<span class="pill">Danke!</span><h1 class="big">Schön, dass ihr da wart 💛</h1><div class="rest">Die Ergebnisse findet ihr in der Session-Dokumentation.</div>`;
+  } else if (nxt) {
+    const wait = nxt.start - nowM;
+    nowHTML = `<span class="pill">Gleich geht’s los</span><h1 class="big">Willkommen beim Bremer BildungsBarcamp!</h1>
+      <div class="rest">${wait <= 120 ? 'Start in ' + wait + ' Min.' : 'Los geht’s um ' + BC.fmt(nxt.start) + ' Uhr'}</div>`;
+  } else nowHTML = `<span class="pill">Zeitplan</span><h1 class="big">Kein Zeitplan gefunden</h1>`;
+
+  const nextHTML = nxt && cur ? `<div class="panel nextcard"><div class="lbl">Danach · ${BC.fmt(nxt.start)} Uhr${nxt.start - nowM <= 60 ? ' · in ' + (nxt.start - nowM) + ' Min.' : ''}</div><div class="txt">${BC.esc(nxt.text)}</div></div>` : '';
+  const qr = C.planQr ? BC.qrSvg(C.planQr) : '';
+  const qrHTML = qr ? `<div class="panel qrcard"><div class="qr">${qr}</div><div><b>📱 Sessionplan aufs Handy</b><span>Jetzt-läuft, alle Sessions und dein eigener Plan</span></div></div>` : '';
+
+  BC.$('app').innerHTML = `<div class="stage${C.zeit ? ' demo' : ''}">
+    <div class="top"><span class="brand">Bremer BildungsBarcamp</span><span class="sub">· Tagesablauf</span>${C.tag ? `<span class="tag">${BC.esc(C.tag)}</span>` : ''}
+      <span class="clock">${BC.fmt(nowM % 1440)}</span></div>
+    <div class="main">
+      <div class="panel agenda"><span class="pill">Zeitplan</span><div class="list">${list}</div></div>
+      <div class="side"><div class="panel nowcard">${nowHTML}</div>${nextHTML}${qrHTML}</div>
+    </div></div>`;
+  fit();
+}
+
+// Liste an die Höhe anpassen
+function fit() {
+  const l = document.querySelector('.agenda .list'); if (!l) return;
+  BC.maxFit(sz => l.style.fontSize = sz + 'px', () => l.scrollHeight <= l.clientHeight + 1, 12, window.innerWidth / 32);
+}
+
+// Ersatz, falls keine „Zeitplan“-Karte existiert: Ablauf aus den Zeitslots
+function fromSlots(slots) {
+  const it = [];
+  slots.forEach((s, i) => {
+    it.push({ start: s.start, end: s.end, text: 'Session-Block ' + (i + 1) });
+    if (s.plus) it.push({ start: s.end, end: s.end + 15, text: 'Session Plus / Austausch' });
+  });
+  it.sort((a, b) => a.start - b.start);
+  return it;
+}
+
+async function refresh() {
+  try { P = await BC.loadPlan(C); lastOk = new Date(); err = ''; }
+  catch (e) { err = e.message; console.warn('Zeitplan:', e); }
+  render();
+}
+
+BC.installChrome('zeitplan.html');
+if (!C.plan) BC.setupForm(BC.$('app'), 'Zeitplan einrichten');
+else {
+  refresh();
+  setInterval(refresh, 120000);   // Board alle 2 Minuten neu laden
+  setInterval(render, 5000);      // Uhr und Restzeit
+  window.addEventListener('resize', () => fit());
+}
+</script>
+</body>
+</html>

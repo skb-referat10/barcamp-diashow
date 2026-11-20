@@ -46,6 +46,38 @@ Die Seiten laufen direkt über GitHub Pages, man muss nichts herunterladen:
 - **Platzhalter** wie „Session 7.1“, „-“, „frei“ oder „TBD“ werden automatisch ausgeblendet.
 - **Kein Zugriff:** Der Link enthält kein `?token=…`, oder der Teilen-Link wurde in TaskCards zurückgezogen.
 
+## 🖥️ Drei Beamer-Ansichten für den ganzen Tag
+
+Mit den Tasten **1 / 2 / 3** wechselt man zwischen drei Ansichten. Alternativ die Maus bewegen, dann erscheint unten eine Leiste. Alle drei nutzen dieselben Einstellungen: Ist die Diashow eingerichtet, kennen die anderen Ansichten den Sessionplan automatisch.
+
+| Taste | Ansicht | Wann |
+|---|---|---|
+| 1 | **🎞️ Diashow** (`index.html`) | während der Session-Blöcke und danach |
+| 2 | **🕘 Zeitplan** (`zeitplan.html`) | vor dem Start, in Pausen, zwischendurch |
+| 3 | **🎤 Sessionplanung** (`sessionplanung.html`) | während der Session-Vorstellung am Morgen |
+
+### 🕘 Zeitplan
+
+Zeigt den Tagesablauf als Timeline. Die Diashow liest ihn aus der Karte **„Zeitplan“** im Sessionplan-Board, mit einer Zeile pro Programmpunkt, z. B. `09:15 Uhr - Session-Vorstellung`. Rechts stehen der aktuelle Punkt groß mit Restzeit und Fortschritt, was danach kommt, und der QR-Code zum mobilen Sessionplan. Bei Session-Blöcken steht dabei, wie viele Sessions parallel laufen. Gibt es keine Zeitplan-Karte, baut die Ansicht den Ablauf aus den Zeitslots.
+
+### 🎤 Sessionplanung mit Vorstellungs-Timer
+
+- **30-Sekunden-Timer** als großer Ring. Ab 10 Sekunden wird er gelb, ab 5 Sekunden rot mit Piepton pro Sekunde, bei 0 kommt ein **Gong** und die Fläche blinkt rot.
+- **Leertaste** (oder Klick auf den Ring) startet sofort die **nächste Vorstellung**, beliebig oft. Ein Zähler zeigt „Vorstellung #12“.
+- Daneben das **Live-Raster** aus Räumen und Zeitslots. Es wird alle 10 Sekunden aktualisiert und hebt neue Einträge hervor: „17 von 24 Plätzen belegt“.
+
+| Taste | Funktion |
+|---|---|
+| Leertaste / Enter | nächste Vorstellung starten |
+| P | Pause / weiter |
+| + / − | Dauer ± 5 Sekunden (wird gemerkt) |
+| M | Ton an/aus |
+| G | Raster aus-/einblenden (nur Timer, extra groß) |
+| 0 | Zähler zurücksetzen |
+| Esc | Timer anhalten |
+
+> 🔊 Der Browser gibt Ton erst nach der ersten Bedienung frei. Den ersten Timer also per Tastendruck oder Klick starten. Vorher den Beamer-Ton testen!
+
 ## 📱 Mobiler Sessionplan (`plan.html`)
 
 Eine zweite, für Handy und iPad gemachte Ansicht nur mit dem Sessionplan. Sie hat drei Reiter:
@@ -99,7 +131,7 @@ Unter *Settings → Pages → Branch `main` / root* aktivieren. Danach läuft di
 
 ## Technik
 
-- Reines HTML/CSS/JavaScript in `index.html` (Diashow) und `plan.html` (mobiler Sessionplan), ohne Build-Schritt.
+- Reines HTML/CSS/JavaScript ohne Build-Schritt: `index.html` (Diashow) und `plan.html` (mobiler Sessionplan) sind eigenständig; `zeitplan.html` und `sessionplanung.html` teilen sich `taskcards.js` (TaskCards-Zugriff, Plan-Auswertung) und `barcamp.css` (Corporate Design).
 - TaskCards: GraphQL unter `https://hb.taskcards.app/graphql`. Der Zugriff läuft über einen anonymen Besucher (`mutation createVisitor`), die Freischaltung per `POST /api/boards/{boardId}/permissions/{token}/accesses` mit Header `x-token`.
 - PDFs: pdf.js mit HTTP-Range-Abruf. Es werden nur die nötigen Teile geladen, auch bei großen Dateien. Gibt es Probleme mit dem Worker, rendert pdf.js im Hauptfenster.
 
@@ -110,7 +142,7 @@ npm install
 npm test
 ```
 
-Die Tests laufen in [jsdom](https://github.com/jsdom/jsdom) mit einer anonymisierten Momentaufnahme der Boards (`tests/fixture.json`) und sprechen nie mit dem echten TaskCards. Sie prüfen unter anderem Doku-Abgleich, Demo-Uhr, Platzhalter-Filter, Rotation und Collage sowie bei der mobilen Ansicht Merken, Konflikte, Suche und das Teilen des eigenen Plans.
+Die Tests laufen in [jsdom](https://github.com/jsdom/jsdom) mit einer anonymisierten Momentaufnahme der Boards (`tests/fixture.json`) und sprechen nie mit dem echten TaskCards. Sie prüfen unter anderem Doku-Abgleich, Demo-Uhr, Platzhalter-Filter, Rotation und Collage sowie bei der mobilen Ansicht Merken, Konflikte, Suche und das Teilen des eigenen Plans und bei Zeitplan und Sessionplanung Tagesablauf, Timer-Ablauf und Live-Raster.
 
 ## Lizenz
 

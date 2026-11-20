@@ -629,9 +629,9 @@
     }
    },
    {
-    "id": "p29",
+    "id": "pzeitplan",
     "title": "Zeitplan ",
-    "description": "08:30 Uhr - ganz entspannt ankommen",
+    "description": "<p style=\"line-height:normal\"><b><i>08:30 Uhr - ganz entspannt ankommen, Check-In</i></b></p><p style=\"line-height:normal\"><b><i>09:00 Uhr - Start, Anleitung, Einführung</i></b></p><p style=\"line-height:normal\"><b><i>09:15 Uhr - Session-Vorstellung</i></b></p><p style=\"line-height:normal\"><b><i>09:45 Uhr - Impulsgespräch</i></b></p><p style=\"line-height:normal\"><b><i>10:30 Uhr - Session-Block 1</i></b></p><p style=\"line-height:normal\"><b><i>11:15 Uhr - Session Plus / Austausch</i></b></p><p style=\"line-height:normal\"><b><i>11:30 Uhr - Pause</i></b></p><p style=\"line-height:normal\"><b><i>11:45 Uhr - Session-Block 2</i></b></p><p style=\"line-height:normal\"><b><i>12:30 Uhr - Session Plus/ Austausch</i></b></p><p style=\"line-height:normal\"><b><i>12:45 Uhr - Mittagspause</i></b></p><p style=\"line-height:normal\"><b><i>13:45 Uhr - Session-Block 3</i></b></p><p style=\"line-height:normal\"><b><i>14:30 Uhr - Session Plus/ Austausch</i></b></p><p style=\"line-height:normal\"><b><i>14:45 Uhr - Raumwechsel</i></b></p><p style=\"line-height:normal\"><b><i>14:50 Uhr  Abschlusssession: Austausch und Feedback mit allen auf dem Marktplatz</i></b></p><p style=\"line-height:normal\"><b><i>15:15 Uhr  - ENDE</i></b></p>",
     "color": "#57afdb",
     "kanbanPosition": {
      "listId": "lh",

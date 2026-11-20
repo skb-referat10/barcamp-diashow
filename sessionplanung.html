@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sessionplanung · Bremer BildungsBarcamp</title>
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=noto-sans:400,600,700,800">
+<link rel="stylesheet" href="barcamp.css">
+<script src="taskcards.js"></script>
+<style>
+  /* Links der Vorstellungs-Timer, rechts das Live-Raster Räume × Zeitslots */
+  .main { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.35fr); gap:2vw; }
+  .main.solo { grid-template-columns:1fr; }
+  .main.solo .gridpanel { display:none; }
+
+  .timer { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; transition:background .3s; }
+  .timer .count { font-weight:800; font-size:clamp(18px,2vw,40px); margin-top:1vh; }
+  .ring { position:relative; width:min(34vw, 56vh); aspect-ratio:1; margin:2vh 0; cursor:pointer; }
+  .main.solo .ring { width:min(60vw, 62vh); }
+  .ring svg { width:100%; height:100%; transform:rotate(-90deg); }
+  .ring .bg { fill:none; stroke:#eee; stroke-width:9; }
+  .ring .fg { fill:none; stroke:var(--green); stroke-width:9; stroke-linecap:round; transition:stroke .3s; }
+  .ring .num { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ring .num b { font-size:clamp(60px,11vw,220px); font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
+  .main.solo .ring .num b { font-size:clamp(80px,17vw,320px); }
+  .ring .num span { color:var(--muted); font-weight:700; font-size:clamp(13px,1.3vw,24px); margin-top:.6vh; }
+  .timer.warn .fg { stroke:var(--gold); }
+  .timer.crit .fg { stroke:var(--red); }
+  .timer.crit .ring .num b { color:var(--red); animation:beat 1s ease-in-out infinite; }
+  @keyframes beat { 0%,100% { transform:scale(1); } 15% { transform:scale(1.12); } }
+  .timer.done { background:var(--red); color:#fff; animation:flash 1s ease-in-out 3; }
+  .timer.done .ring .num b, .timer.done .ring .num span, .timer.done .count, .timer.done .hint { color:#fff; }
+  .timer.done .bg { stroke:rgba(255,255,255,.25); }
+  @keyframes flash { 50% { background:var(--red2); } }
+  .timer .hint { color:var(--muted); font-size:clamp(13px,1.2vw,22px); }
+  .timer .hint kbd { background:var(--grey); border-radius:6px; padding:.05em .45em; font:inherit; font-weight:700; color:var(--ink); }
+  .ctrls { display:flex; gap:.6vw; flex-wrap:wrap; justify-content:center; margin-top:1.6vh; }
+  .ctrls button { border:0; border-radius:999px; font:inherit; font-weight:700; font-size:clamp(13px,1.15vw,20px); padding:.55em 1.1em; cursor:pointer; background:var(--grey); color:var(--ink); }
+  .ctrls button.go { background:var(--red); color:#fff; font-size:clamp(15px,1.5vw,26px); padding:.6em 1.5em; }
+  .timer.done .ctrls button.go { background:#fff; color:var(--red); }
+
+  /* Live-Raster */
+  .gridpanel { display:flex; flex-direction:column; }
+  .gridhead { display:flex; align-items:baseline; justify-content:space-between; gap:1vw; }
+  .gridhead .stat { font-weight:800; font-size:clamp(15px,1.6vw,30px); }
+  .gridhead .stat em { font-style:normal; color:var(--green); }
+  .fill { height:10px; background:#eee; border-radius:99px; overflow:hidden; margin:1.2vh 0 1.6vh; }
+  .fill i { display:block; height:100%; background:var(--green); border-radius:99px; transition:width 1s; }
+  .grid { flex:1; min-height:0; display:grid; gap:.35em; overflow:hidden; }
+  .grid .h { font-weight:800; font-size:.8em; align-self:end; padding:0 .3em .2em; }
+  .grid .r { font-weight:800; color:var(--red); text-transform:uppercase; letter-spacing:.04em; font-size:.62em; align-self:center; padding-right:.4em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cell { border-radius:10px; padding:.35em .5em; line-height:1.18; min-height:0; overflow:hidden; background:#eef6e8; border-left:5px solid var(--green); }
+  .cell b { display:block; font-weight:700; }
+  .cell small { color:var(--muted); font-size:.75em; }
+  .cell.free { background:none; border:2px dashed #d0d0d0; color:#aaa; display:flex; align-items:center; justify-content:center; font-size:.8em; }
+  .cell.new { animation:pop 1.6s ease; }
+  @keyframes pop { 0% { transform:scale(.6); background:#fff3cd; } 40% { transform:scale(1.06); background:#fff3cd; } 100% { transform:none; } }
+  .gridfoot { color:var(--muted); font-size:clamp(11px,1vw,17px); margin-top:1vh; }
+</style>
+</head>
+<body>
+<div id="scene" aria-hidden="true">
+  <div class="wolke" style="top:7vh;--w:15vw;--t:150s;--d:-30s"></div>
+  <div class="wolke" style="top:20vh;--w:10vw;--t:115s;--d:-80s"></div>
+  <svg class="hills" viewBox="0 0 1600 340" preserveAspectRatio="none">
+    <path d="M0 210 C 260 120, 520 140, 760 190 S 1240 260, 1600 150 L1600 340 L0 340 Z" fill="var(--hill1)"/>
+    <path d="M0 290 C 300 230, 620 250, 900 280 S 1350 200, 1600 120 L1600 340 L0 340 Z" fill="var(--hill2)"/>
+  </svg>
+</div>
+<div id="app"></div>
+
+<script>
+const C = BC.conf();
+const $ = BC.$;
+
+// ================= Timer =================
+// Zustand: bereit → läuft → (Pause) → Zeit um; Leertaste startet jederzeit die nächste Vorstellung
+const T = {
+  dur: Math.min(300, Math.max(10, +C.cfg.pitchSec || 30)),   // Sekunden pro Vorstellung
+  count: +sessionStorage.getItem('pitchCount') || 0,         // Vorstellungen in dieser Runde
+  end: 0, left: 0, state: 'ready', lastBeep: null,
+  sound: C.cfg.pitchSound !== false,
+};
+
+// ---------- Ton (Web Audio, startet erst nach dem ersten Klick/Tastendruck) ----------
+let AC = null;
+function audio() {
+  if (!AC) { const A = window.AudioContext || window.webkitAudioContext; if (A) AC = new A(); }
+  if (AC && AC.state === 'suspended') AC.resume();
+  return AC;
+}
+function tone(freq, start, dur, vol, type) {
+  const a = audio(); if (!a || !T.sound) return;
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = type || 'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, a.currentTime + start);
+  g.gain.exponentialRampToValueAtTime(vol, a.currentTime + start + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + start + dur);
+  o.connect(g).connect(a.destination);
+  o.start(a.currentTime + start); o.stop(a.currentTime + start + dur + 0.05);
+}
+const tick = last => tone(last ? 1320 : 990, 0, 0.09, 0.35, 'square');
+function gong() {
+  // „Ding-Dong“ mit Obertönen, gut hörbar auch in großen Räumen
+  [[659, 0], [523, 0.45]].forEach(([f, s]) => {
+    tone(f, s, 2.2, 0.55); tone(f * 2, s, 1.4, 0.18); tone(f * 3, s, 0.8, 0.08);
+  });
+}
+
+// ---------- Steuerung ----------
+function startNext() {
+  audio();
+  T.count++; sessionStorage.setItem('pitchCount', T.count);
+  T.end = Date.now() + T.dur * 1000; T.state = 'run'; T.lastBeep = null;
+  draw();
+}
+function togglePause() {
+  if (T.state === 'run') { T.left = Math.max(0, T.end - Date.now()); T.state = 'pause'; }
+  else if (T.state === 'pause') { T.end = Date.now() + T.left; T.state = 'run'; }
+  draw();
+}
+function stopTimer() { T.state = 'ready'; draw(); }
+function resetCount() { T.count = 0; sessionStorage.setItem('pitchCount', 0); T.state = 'ready'; draw(); }
+function setDur(d) { T.dur = Math.min(300, Math.max(10, d)); BC.writeCfg({ pitchSec: T.dur }); if (T.state !== 'run') draw(); }
+function toggleSound() { T.sound = !T.sound; BC.writeCfg({ pitchSound: T.sound }); draw(); }
+
+function remaining() {
+  if (T.state === 'run') return Math.max(0, (T.end - Date.now()) / 1000);
+  if (T.state === 'pause') return T.left / 1000;
+  if (T.state === 'done') return 0;
+  return T.dur;
+}
+
+// läuft ~10× pro Sekunde: Ring, Ziffern, Töne
+function loop() {
+  if (T.state === 'run') {
+    const r = remaining(), whole = Math.ceil(r);
+    if (r <= 0) { T.state = 'done'; gong(); }
+    else if (whole <= 5 && whole !== T.lastBeep) { T.lastBeep = whole; tick(whole === 1); }
+  }
+  paintTimer();
+}
+
+const R = 45, CIRC = 2 * Math.PI * R;
+function paintTimer() {
+  const box = document.querySelector('.timer'); if (!box) return;
+  const r = remaining(), whole = Math.ceil(r);
+  box.classList.toggle('warn', T.state === 'run' && r <= 10 && r > 5);
+  box.classList.toggle('crit', T.state === 'run' && r <= 5);
+  box.classList.toggle('done', T.state === 'done');
+  box.querySelector('.fg').style.strokeDashoffset = CIRC * (1 - r / T.dur);
+  box.querySelector('.num b').textContent = T.state === 'done' ? '0' : whole;
+  box.querySelector('.num span').textContent = { ready:'Sekunden', run:'Sekunden', pause:'⏸ Pause', done:'⏰ Zeit!' }[T.state];
+  box.querySelector('.count').textContent = T.count ? `Vorstellung #${T.count}` : 'Bereit für die erste Vorstellung';
+  box.querySelector('.go').textContent = T.state === 'ready' && !T.count ? '▶ Start' : '▶ Nächste Vorstellung';
+  const clock = document.querySelector('.top .clock');
+  if (clock) clock.textContent = BC.fmt(Math.floor(BC.nowSec(C) / 60) % 1440);
+}
+
+function timerHTML() {
+  return `<div class="panel timer"><span class="pill">Session-Vorstellung</span>
+    <div class="count"></div>
+    <div class="ring" data-act="go" title="Klick oder Leertaste: nächste Vorstellung">
+      <svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="${R}"/><circle class="fg" cx="50" cy="50" r="${R}" stroke-dasharray="${CIRC}" stroke-dashoffset="0"/></svg>
+      <div class="num"><b>${T.dur}</b><span>Sekunden</span></div>
+    </div>
+    <div class="hint"><kbd>Leertaste</kbd> nächste Vorstellung · <kbd>P</kbd> Pause · <kbd>G</kbd> Raster</div>
+    <div class="ctrls">
+      <button class="go" data-act="go">▶ Start</button>
+      <button data-act="pause">⏸</button>
+      <button data-act="minus">−5 s</button><button data-act="plus">+5 s</button>
+      <button data-act="sound">${T.sound ? '🔊' : '🔇'}</button>
+      <button data-act="reset" title="Zähler auf 0">↺ Zähler</button>
+    </div></div>`;
+}
+
+// ================= Live-Raster Räume × Zeitslots =================
+let P = null, known = null, lastOk = null, err = '';
+
+function gridHTML() {
+  if (!P) return `<div class="panel gridpanel"><span class="pill">Sessionplan</span><p class="gridfoot">${err ? '⚠️ ' + BC.esc(err) : 'Lade Sessionplan …'}</p></div>`;
+  const slots = P.slots, rooms = P.rooms;
+  const total = slots.length * rooms.length;
+  const filled = P.sessions.length;
+  const head = `<span></span>` + slots.map(s => `<div class="h">${BC.fmt(s.start)}</div>`).join('');
+  const rows = rooms.map(room => `<div class="r" title="${BC.esc(room)}">${BC.esc(room)}</div>` + slots.map((s, si) => {
+    const x = P.sessions.find(y => y.room === room && y.slot === si);
+    if (!x) return '<div class="cell free">frei</div>';
+    const isNew = known && !known.has(x.id);
+    return `<div class="cell${isNew ? ' new' : ''}"><b>${BC.esc(x.title)}</b>${x.host ? `<small>${BC.esc(x.host)}</small>` : ''}</div>`;
+  }).join('')).join('');
+  return `<div class="panel gridpanel">
+    <div class="gridhead"><span class="pill">Sessionplan · live</span><span class="stat"><em>${filled}</em> von ${total} Plätzen belegt</span></div>
+    <div class="fill"><i style="width:${total ? filled / total * 100 : 0}%"></i></div>
+    <div class="grid" style="grid-template-columns:auto repeat(${slots.length}, minmax(0,1fr)); grid-template-rows:auto repeat(${rooms.length}, minmax(0,1fr));">${head}${rows}</div>
+    <div class="gridfoot">${P.proposals ? P.proposals + ' Sessionvorschläge auf dem Board · ' : ''}${lastOk ? 'Stand ' + lastOk.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit', second:'2-digit' }) : ''}${err ? ' · ⚠️ ' + BC.esc(err) : ''}</div></div>`;
+}
+
+function fitGrid() {
+  const g = document.querySelector('.grid'); if (!g) return;
+  BC.maxFit(sz => g.style.fontSize = sz + 'px',
+    () => [...g.querySelectorAll('.cell')].every(c => c.scrollHeight <= c.clientHeight + 1) && g.scrollHeight <= g.clientHeight + 1,
+    9, window.innerWidth / 50);
+}
+
+let solo = false;
+function draw() {
+  const nowM = Math.floor(BC.nowSec(C) / 60);
+  $('app').innerHTML = `<div class="stage${C.zeit ? ' demo' : ''}">
+    <div class="top"><span class="brand">Bremer BildungsBarcamp</span><span class="sub">· Sessionplanung</span>${C.tag ? `<span class="tag">${BC.esc(C.tag)}</span>` : ''}
+      <span class="clock">${BC.fmt(nowM % 1440)}</span></div>
+    <div class="main${solo ? ' solo' : ''}">${timerHTML()}${gridHTML()}</div></div>`;
+  paintTimer(); fitGrid();
+}
+// nur das Raster neu zeichnen (Timer läuft ungestört weiter)
+function drawGrid() {
+  const old = document.querySelector('.gridpanel'); if (!old) return draw();
+  const tmp = document.createElement('div'); tmp.innerHTML = gridHTML();
+  old.replaceWith(tmp.firstElementChild); fitGrid();
+  const clock = document.querySelector('.top .clock'); if (clock) clock.textContent = BC.fmt(Math.floor(BC.nowSec(C) / 60) % 1440);
+}
+
+async function refresh() {
+  try {
+    const next = await BC.loadPlan(C);
+    if (P) known = new Set(P.sessions.map(x => x.id));   // neue Einträge hervorheben
+    P = next; lastOk = new Date(); err = '';
+  } catch (e) { err = e.message; }
+  drawGrid();
+}
+
+// ================= Bedienung =================
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-act]'); if (!a) return;
+  ({ go: startNext, pause: togglePause, minus: () => setDur(T.dur - 5), plus: () => setDur(T.dur + 5),
+     sound: toggleSound, reset: resetCount })[a.dataset.act]();
+});
+document.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input')) return;
+  const k = e.key.toLowerCase();
+  if (k === ' ' || k === 'enter') { e.preventDefault(); startNext(); }
+  else if (k === 'p') togglePause();
+  else if (k === 'escape') stopTimer();
+  else if (k === '+' || k === 'arrowup') setDur(T.dur + 5);
+  else if (k === '-' || k === 'arrowdown') setDur(T.dur - 5);
+  else if (k === 'm') toggleSound();
+  else if (k === '0') resetCount();
+  else if (k === 'g') { solo = !solo; draw(); }
+});
+window.addEventListener('resize', () => fitGrid());
+
+BC.installChrome('sessionplanung.html');
+draw();
+setInterval(loop, 100);
+if (C.plan) { refresh(); setInterval(refresh, 10000); }   // Raster alle 10 Sekunden aktualisieren
+else { solo = true; draw(); }                              // ohne Board: nur der Timer
+</script>
+</body>
+</html>
