@@ -119,7 +119,8 @@ const check = (name, cond, info) => { console.log((cond ? '✔ ' : '✘ ') + nam
   // 11) Wechsel zu Zeitplan/Sessionplanung nimmt Sessionplan und Hashtag mit
   ev(`cfg.demo=false; cfg.plan='https://hb.taskcards.app/#/board/${PLAN_ID}?token=abc'; cfg.tag='#3B12'; cfg.planQr='';`);
   const vl = ev(`viewLink('zeitplan.html')`);
-  check('Taste 2: Link enthält Sessionplan und Hashtag', vl === `zeitplan.html#plan=${PLAN_ID}.abc&tag=%233B12`, vl);
+  check('Taste 2: Link enthält Version, Sessionplan und Hashtag', /^zeitplan\.html\?v=[\w-]+#plan=/.test(vl) && vl.endsWith(`#plan=${PLAN_ID}.abc&tag=%233B12`), vl);
+  check('Diashow merkt sich, dass sie läuft (Neuladen/Zurück startet direkt)', w.sessionStorage.getItem('bcRunning') === '1');
 
   // 12) Wechsel als Ebene: Diashow bleibt, Zeitplan/Sessionplanung liegen darüber
   const slideBefore = $('slideWrap').querySelectorAll('.slide').length;

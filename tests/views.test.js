@@ -12,7 +12,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 function open(file, hash, storage) {
   // taskcards.js direkt einbetten, externe Ressourcen entfernen
   const html = fs.readFileSync(path.join(__dirname, '..', file), 'utf8')
-    .replace('<script src="taskcards.js"></script>', '<script>' + lib.replace(/<\/script>/g, '<\\/script>') + '</script>')
+    .replace(/<script src="taskcards.js[^"]*"><\/script>/, '<script>' + lib.replace(/<\/script>/g, '<\\/script>') + '</script>')
     .replace(/<script src=[^>]+><\/script>/g, '').replace(/<link [^>]+>/g, '');
   return new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, url: 'https://example.test/' + file + hash,
     beforeParse(w) {

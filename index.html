@@ -349,6 +349,16 @@
 <div id="toast"></div>
 
 <script>
+// Versionskennung: hängt an den Adressen der anderen Ansichten, damit der Browser nach einem Update
+// keine veralteten Dateien aus dem Zwischenspeicher nimmt (bei Änderungen hochzählen)
+const BUILD = '2026-11-20c';
+
+// Wird die Diashow versehentlich innerhalb einer Ebene geöffnet: stattdessen die äußere Diashow zeigen
+if (window.parent !== window) {
+  try { window.parent.postMessage({ bcView: 'index.html' }, '*'); } catch (e) {}
+  document.documentElement.style.visibility = 'hidden';
+}
+
 // ---------- Einstellungen & Zustand ----------
 const LS_KEY = 'barcampDiashow';
 let cfg = { url:'', slideSec:15, imgSec:6, refreshMin:2, cloudChars:350, hide:'Anleitung', doc:'', pdfPages:4,
@@ -1355,6 +1365,7 @@ async function start() {
   try {
     await refresh(true);
     $('setup').style.display = 'none';
+    try { sessionStorage.setItem('bcRunning', '1'); } catch (e) {}   // nach Neuladen/Zurück direkt weiterlaufen
     $('setupErr').textContent = '';
     clearInterval(refreshTimer);
     refreshTimer = setInterval(() => refresh(), cfg.refreshMin * 60 * 1000);
@@ -1459,7 +1470,7 @@ function viewLink(file) {
   if (cfg.tag) hp.set('tag', cfg.tag);
   if (cfg.planQr) hp.set('qr', cfg.planQr);
   if (cfg.demo) hp.set('zeit', fmtMin(nowMin()));
-  return base + file + (hp.toString() ? '#' + hp.toString() : '');
+  return base + file + '?v=' + BUILD + (hp.toString() ? '#' + hp.toString() : '');
 }
 document.getElementById('viewNav').addEventListener('click', e => {
   const a = e.target.closest('a'); if (!a) return;
@@ -1513,8 +1524,12 @@ document.addEventListener('mousemove', () => {
   idleT = setTimeout(() => { document.body.classList.remove('mouse'); if ($('setup').style.display === 'none') document.body.classList.add('idle'); }, 3000);
 });
 // Rückkehr aus Zeitplan/Sessionplanung (…/index.html#go): mit den gespeicherten Einstellungen direkt starten
-if (/(^#|&)go(&|=|$)/.test(location.hash) && cfg.url) {
-  history.replaceState(null, '', location.pathname + location.search);
+// Direkt starten (ohne Dialog), wenn man aus Zeitplan/Sessionplanung zurückkommt (#go) oder die Diashow
+// in diesem Fenster schon lief (Neuladen, Zurück-Knopf). Einstellungen jederzeit mit „S“.
+let wasRunning = false;
+try { wasRunning = sessionStorage.getItem('bcRunning') === '1'; } catch (e) {}
+if (window.parent === window && cfg.url && (/(^#|&)go(&|=|$)/.test(location.hash) || wasRunning)) {
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   start();
 }
 </script>
