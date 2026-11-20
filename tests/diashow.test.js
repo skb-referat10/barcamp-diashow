@@ -121,6 +121,15 @@ const check = (name, cond, info) => { console.log((cond ? '✔ ' : '✘ ') + nam
   const vl = ev(`viewLink('zeitplan.html')`);
   check('Taste 2: Link enthält Sessionplan und Hashtag', vl === `zeitplan.html#plan=${PLAN_ID}.abc&tag=%233B12`, vl);
 
+  // 12) Wechsel als Ebene: Diashow bleibt, Zeitplan/Sessionplanung liegen darüber
+  const slideBefore = $('slideWrap').querySelectorAll('.slide').length;
+  w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: '2' }));
+  check('Taste 2: Zeitplan als Ebene (kein Seitenwechsel)', !$('viewLayer').hidden && $('viewLayer').querySelector('iframe.on').src.includes('zeitplan.html') && w.location.pathname === '/');
+  w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: '3' }));
+  check('Taste 3: Sessionplanung, Zeitplan-Ebene bleibt im Hintergrund erhalten', $('viewLayer').querySelectorAll('iframe').length === 2 && $('viewLayer').querySelector('iframe.on').src.includes('sessionplanung.html'));
+  w.dispatchEvent(new w.MessageEvent('message', { data: { bcView: 'index.html' } }));
+  check('Nachricht „zurück zur Diashow“: Ebene weg, Diashow läuft weiter', $('viewLayer').hidden && $('slideWrap').querySelectorAll('.slide').length >= 1 && $('setup').style.display === 'none', slideBefore);
+
   console.log(fails ? `\n${fails} Test(s) fehlgeschlagen` : '\nAlle Tests bestanden');
   process.exit(fails ? 1 : 0);
 })().catch(e => { console.error('FEHLER', e); process.exit(1); });

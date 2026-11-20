@@ -186,8 +186,15 @@ const BC = (() => {
 
   // ---------- Navigation zwischen den Ansichten + Vollbild ----------
   const VIEWS = [['1', 'index.html', '🎞️ Diashow'], ['2', 'zeitplan.html', '🕘 Zeitplan'], ['3', 'sessionplanung.html', '🎤 Sessionplanung']];
-  function goView(file) { location.href = file + location.hash; }   // #zeit=… u. Ä. mitnehmen
+  // Läuft die Ansicht als Ebene in der Diashow, übernimmt die Diashow den Wechsel (kein Neuladen,
+  // Vollbild bleibt). Allein geöffnet: zur Diashow mit #go (startet direkt), sonst Parameter mitnehmen.
+  const embedded = window.parent !== window;
+  function goView(file) {
+    if (embedded) { window.parent.postMessage({ bcView: file }, '*'); return; }
+    location.href = file === 'index.html' ? 'index.html#go' : file + location.hash;
+  }
   function toggleFull() {
+    if (embedded) { window.parent.postMessage({ bcFull: true }, '*'); return; }
     if (document.fullscreenElement) document.exitFullscreen();
     else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
   }
