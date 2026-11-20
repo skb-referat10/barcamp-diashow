@@ -39,6 +39,17 @@
   .ctrls button.go { background:var(--red); color:#fff; font-size:clamp(15px,1.5vw,26px); padding:.6em 1.5em; }
   .timer.done .ctrls button.go { background:#fff; color:var(--red); }
 
+  /* Ton-Menü */
+  .menu { position:fixed; inset:0; z-index:25; background:rgba(29,29,27,.35); display:flex; align-items:center; justify-content:center; }
+  .menubox { background:#fff; border-radius:20px; padding:26px 28px; width:min(460px, 92vw); box-shadow:0 20px 60px rgba(0,0,0,.3); }
+  .menubox h2 { margin:0 0 6px; color:var(--red); }
+  .menubox label { display:block; font-weight:700; font-size:14px; margin:14px 0 6px; color:var(--muted); }
+  .mrow { display:flex; gap:8px; }
+  .mrow select { flex:1; padding:10px; font:inherit; font-size:15px; border-radius:10px; border:1px solid #cfcfcf; }
+  .menubox button { border:0; border-radius:999px; font:inherit; font-weight:700; padding:9px 14px; cursor:pointer; background:var(--grey); }
+  .menubox input[type=range] { width:100%; accent-color:var(--red); }
+  .menubox .close { margin-top:18px; width:100%; background:var(--red); color:#fff; font-size:16px; }
+
   /* Live-Raster */
   .gridpanel { display:flex; flex-direction:column; }
   .gridhead { display:flex; align-items:baseline; justify-content:space-between; gap:1vw; }
@@ -80,39 +91,80 @@ const T = {
   count: +sessionStorage.getItem('pitchCount') || 0,         // Vorstellungen in dieser Runde
   end: 0, left: 0, state: 'ready', lastBeep: null,
   sound: C.cfg.pitchSound !== false,
+  endSound: C.cfg.pitchEnd || 'horn',          // Endsignal
+  tick: C.cfg.pitchTick || 'soft',             // Ticken in den letzten 3 Sekunden
+  vol: C.cfg.pitchVol != null ? +C.cfg.pitchVol : 0.8,
 };
 
 // ---------- Ton (Web Audio, startet erst nach dem ersten Klick/Tastendruck) ----------
-let AC = null;
+let AC = null, MASTER = null;
 function audio() {
-  if (!AC) { const A = window.AudioContext || window.webkitAudioContext; if (A) AC = new A(); }
+  if (!AC) {
+    const A = window.AudioContext || window.webkitAudioContext;
+    if (A) { AC = new A(); MASTER = AC.createGain(); MASTER.connect(AC.destination); }
+  }
   if (AC && AC.state === 'suspended') AC.resume();
+  if (MASTER) MASTER.gain.value = T.vol;
   return AC;
 }
-function tone(freq, start, dur, vol, type) {
+// Einzelton mit Hüllkurve; optional Filter, Vibrato und Tonhöhen-Gleiten
+function tone(freq, start, dur, vol, type, o = {}) {
   const a = audio(); if (!a || !T.sound) return;
-  const o = a.createOscillator(), g = a.createGain();
-  o.type = type || 'sine'; o.frequency.value = freq;
-  g.gain.setValueAtTime(0.0001, a.currentTime + start);
-  g.gain.exponentialRampToValueAtTime(vol, a.currentTime + start + 0.01);
-  g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + start + dur);
-  o.connect(g).connect(a.destination);
-  o.start(a.currentTime + start); o.stop(a.currentTime + start + dur + 0.05);
+  const t = a.currentTime + start;
+  const osc = a.createOscillator(), g = a.createGain();
+  osc.type = type || 'sine'; osc.frequency.setValueAtTime(freq, t);
+  if (o.slideTo) osc.frequency.exponentialRampToValueAtTime(o.slideTo, t + dur);
+  if (o.vib) {   // Vibrato bzw. Triller (z. B. Pfeife)
+    const lfo = a.createOscillator(), lg = a.createGain();
+    lfo.frequency.value = o.vib[0]; lg.gain.value = o.vib[1];
+    lfo.connect(lg).connect(osc.frequency); lfo.start(t); lfo.stop(t + dur + 0.05);
+  }
+  const att = o.attack || 0.01, hold = o.hold || 0;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + att);
+  if (hold) g.gain.setValueAtTime(vol, t + att + hold);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + att + hold + dur);
+  let node = osc;
+  if (o.lowpass) { const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = o.lowpass; node.connect(f); node = f; }
+  node.connect(g).connect(MASTER);
+  osc.start(t); osc.stop(t + att + hold + dur + 0.05);
 }
-// leises „Tock“ (wie ein Holzblock) – nur in den letzten 3 Sekunden
-const tick = last => { tone(last ? 880 : 740, 0, 0.07, 0.16); tone(last ? 1760 : 1480, 0, 0.03, 0.05); };
-
-// Glocke mit typischen, leicht „schiefen“ Glocken-Obertönen (Hum, Prime, Terz, Quinte, Oktave …);
-// höhere Teiltöne klingen schneller aus – so klingt es nach Gong statt nach Klingel
+// Glocke mit typischen Glocken-Obertönen
 function bell(f, start, vol, len) {
   [[0.5, 0.35, 1.0], [1, 0.55, 0.85], [1.19, 0.28, 0.6], [1.5, 0.16, 0.5], [2, 0.22, 0.42], [2.51, 0.09, 0.3], [3.01, 0.06, 0.22]]
     .forEach(([ratio, gain, decay]) => tone(f * ratio, start, len * decay, vol * gain));
 }
-// klassischer Schulgong: drei absteigende Glockentöne (G – E – C)
-function gong() {
-  bell(392, 0, 0.9, 2.6);
-  bell(330, 0.75, 0.9, 2.6);
-  bell(262, 1.5, 1.0, 4.0);
+
+// Wählbare Endsignale
+const END_SOUNDS = {
+  horn:    { label:'📯 Horn (Stadion)', play() {          // kräftiges Signalhorn: zwei raue Töne, kurz gehalten
+    [[370, 0.32], [466, 0.26], [554, 0.12]].forEach(([f, v]) => tone(f, 0, 0.35, v, 'sawtooth', { attack:0.03, hold:0.9, lowpass:2200, vib:[5, 4] }));
+  } },
+  ship:    { label:'🚢 Schiffshorn (tief)', play() {
+    [[110, 0.45], [165, 0.3], [220, 0.12]].forEach(([f, v]) => tone(f, 0, 0.6, v, 'sawtooth', { attack:0.12, hold:1.3, lowpass:700 }));
+  } },
+  whistle: { label:'🏁 Pfiff (Schiri)', play() {         // zwei Pfiffe mit Triller
+    tone(2900, 0, 0.08, 0.22, 'sine', { attack:0.01, hold:0.18, vib:[32, 140] });
+    tone(2900, 0.38, 0.12, 0.22, 'sine', { attack:0.01, hold:0.55, vib:[32, 140] });
+  } },
+  buzzer:  { label:'🟥 Buzzer (Quiz)', play() {
+    tone(140, 0, 0.12, 0.35, 'square', { attack:0.005, hold:0.6, lowpass:1500 });
+    tone(147, 0, 0.12, 0.25, 'square', { attack:0.005, hold:0.6, lowpass:1500 });
+  } },
+  ding:    { label:'🔔 Ding (sanft)', play() { bell(784, 0, 0.6, 2.4); } },
+  cuckoo:  { label:'🐦 Kuckuck', play() {
+    tone(659, 0, 0.25, 0.4, 'sine', { attack:0.02, hold:0.12 }); tone(523, 0.42, 0.35, 0.4, 'sine', { attack:0.02, hold:0.18 });
+  } },
+  gong:    { label:'🛎️ Schulgong (3 Töne)', play() { bell(392, 0, 0.9, 2.6); bell(330, 0.75, 0.9, 2.6); bell(262, 1.5, 1.0, 4.0); } },
+  none:    { label:'🔇 Kein Ton (nur Bild)', play() {} },
+};
+const TICKS = { soft:'leises Tock', clear:'deutliches Ticken', off:'kein Ticken' };
+
+function endSound() { (END_SOUNDS[T.endSound] || END_SOUNDS.horn).play(); }
+function tick(last) {
+  if (T.tick === 'off') return;
+  if (T.tick === 'clear') tone(last ? 1175 : 880, 0, 0.06, 0.3, 'triangle');
+  else { tone(last ? 880 : 740, 0, 0.07, 0.16); tone(last ? 1760 : 1480, 0, 0.03, 0.05); }
 }
 
 // ---------- Steuerung ----------
@@ -143,7 +195,7 @@ function remaining() {
 function loop() {
   if (T.state === 'run') {
     const r = remaining(), whole = Math.ceil(r);
-    if (r <= 0) { T.state = 'done'; gong(); }
+    if (r <= 0) { T.state = 'done'; endSound(); }
     else if (whole <= 3 && whole !== T.lastBeep) { T.lastBeep = whole; tick(whole === 1); }
   }
   paintTimer();
@@ -172,12 +224,13 @@ function timerHTML() {
       <svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="${R}"/><circle class="fg" cx="50" cy="50" r="${R}" stroke-dasharray="${CIRC}" stroke-dashoffset="0"/></svg>
       <div class="num"><b>${T.dur}</b><span>Sekunden</span></div>
     </div>
-    <div class="hint"><kbd>Leertaste</kbd> nächste Vorstellung · <kbd>P</kbd> Pause · <kbd>G</kbd> Raster</div>
+    <div class="hint"><kbd>Leertaste</kbd> nächste Vorstellung · <kbd>P</kbd> Pause · <kbd>G</kbd> Raster · <kbd>T</kbd> Ton</div>
     <div class="ctrls">
       <button class="go" data-act="go">▶ Start</button>
       <button data-act="pause">⏸</button>
       <button data-act="minus">−5 s</button><button data-act="plus">+5 s</button>
-      <button data-act="sound">${T.sound ? '🔊' : '🔇'}</button>
+      <button data-act="sound" title="Ton an/aus (M)">${T.sound ? '🔊' : '🔇'}</button>
+      <button data-act="menu" title="Tonauswahl (T)">🎵 Ton wählen</button>
       <button data-act="reset" title="Zähler auf 0">↺ Zähler</button>
     </div></div>`;
 }
@@ -217,7 +270,7 @@ function draw() {
   $('app').innerHTML = `<div class="stage${C.zeit ? ' demo' : ''}">
     <div class="top"><span class="brand">Bremer BildungsBarcamp</span><span class="sub">· Sessionplanung</span>${C.tag ? `<span class="tag">${BC.esc(C.tag)}</span>` : ''}
       <span class="clock">${BC.fmt(nowM % 1440)}</span></div>
-    <div class="main${solo ? ' solo' : ''}">${timerHTML()}${gridHTML()}</div></div>`;
+    <div class="main${solo ? ' solo' : ''}">${timerHTML()}${gridHTML()}</div></div>${menuHTML()}`;
   paintTimer(); fitGrid();
 }
 // nur das Raster neu zeichnen (Timer läuft ungestört weiter)
@@ -237,21 +290,51 @@ async function refresh() {
   drawGrid();
 }
 
+// ================= Ton-Menü =================
+let menuOpen = false;
+function toggleMenu() { menuOpen = !menuOpen; draw(); }
+function menuHTML() {
+  if (!menuOpen) return '';
+  const opts = (o, cur) => Object.entries(o).map(([k, v]) => `<option value="${k}"${k === cur ? ' selected' : ''}>${typeof v === 'string' ? v : v.label}</option>`).join('');
+  return `<div class="menu" role="dialog" aria-label="Tonauswahl"><div class="menubox">
+    <h2>🎵 Ton für die Vorstellungen</h2>
+    <label>Signal am Ende</label>
+    <div class="mrow"><select id="mEnd">${opts(END_SOUNDS, T.endSound)}</select><button data-act="tryEnd">▶ Probe</button></div>
+    <label>In den letzten 3 Sekunden</label>
+    <div class="mrow"><select id="mTick">${opts(TICKS, T.tick)}</select><button data-act="tryTick">▶ Probe</button></div>
+    <label>Lautstärke <span id="mVolV">${Math.round(T.vol * 100)} %</span></label>
+    <input id="mVol" type="range" min="0" max="1" step="0.05" value="${T.vol}">
+    <button class="close" data-act="close">Fertig</button></div></div>`;
+}
+// Änderungen im Menü sofort übernehmen und merken
+document.addEventListener('change', e => {
+  if (e.target.id === 'mEnd') { T.endSound = e.target.value; BC.writeCfg({ pitchEnd: T.endSound }); audio(); endSound(); }
+  if (e.target.id === 'mTick') { T.tick = e.target.value; BC.writeCfg({ pitchTick: T.tick }); }
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'mVol') { T.vol = +e.target.value; BC.writeCfg({ pitchVol: T.vol }); if (MASTER) MASTER.gain.value = T.vol; $('mVolV').textContent = Math.round(T.vol * 100) + ' %'; }
+});
+
 // ================= Bedienung =================
 document.addEventListener('click', e => {
   const a = e.target.closest('[data-act]'); if (!a) return;
   ({ go: startNext, pause: togglePause, minus: () => setDur(T.dur - 5), plus: () => setDur(T.dur + 5),
-     sound: toggleSound, reset: resetCount })[a.dataset.act]();
+     sound: toggleSound, reset: resetCount, menu: toggleMenu, close: toggleMenu,
+     tryEnd: () => { audio(); endSound(); }, tryTick: () => { audio(); [3, 2, 1].forEach((n, i) => setTimeout(() => tick(n === 1), i * 1000)); },
+  })[a.dataset.act]();
 });
 document.addEventListener('keydown', e => {
-  if (e.target.closest && e.target.closest('input')) return;
+  if (e.target.closest && e.target.closest('input, select')) return;
   const k = e.key.toLowerCase();
+  if (menuOpen && (k === 'escape' || k === 't')) { toggleMenu(); return; }
+  if (menuOpen) return;
   if (k === ' ' || k === 'enter') { e.preventDefault(); startNext(); }
   else if (k === 'p') togglePause();
   else if (k === 'escape') stopTimer();
   else if (k === '+' || k === 'arrowup') setDur(T.dur + 5);
   else if (k === '-' || k === 'arrowdown') setDur(T.dur - 5);
   else if (k === 'm') toggleSound();
+  else if (k === 't') toggleMenu();
   else if (k === '0') resetCount();
   else if (k === 'g') { solo = !solo; draw(); }
 });

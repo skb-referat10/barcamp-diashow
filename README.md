@@ -66,7 +66,7 @@ Zeigt den Tagesablauf als Timeline. Die Diashow liest ihn aus der Karte **„Zei
 
 - **30-Sekunden-Timer** als großer Ring. Ab 10 Sekunden wird er gelb, ab 5 Sekunden rot, bei 0 blinkt die Fläche rot.
 - **Leertaste** (oder Klick auf den Ring) startet sofort die **nächste Vorstellung**, beliebig oft. Ein Zähler zeigt „Vorstellung #12“.
-- Leises „Tock“ in den letzten 3 Sekunden, am Ende ein **klassischer Schulgong** (drei absteigende Glockentöne).
+- **Ton wählbar** (Taste **T** oder „🎵 Ton wählen“, mit ▶ Probe): Horn (Stadion), Schiffshorn, Pfiff, Buzzer, sanftes Ding, Kuckuck, Schulgong oder kein Ton. Dazu Ticken in den letzten 3 Sekunden (leise, deutlich, aus) und Lautstärke. Die Auswahl wird gemerkt.
 - Daneben das **Live-Raster** aus Räumen und Zeitslots. Es wird alle 10 Sekunden aktualisiert und hebt neue Einträge hervor: „17 von 24 Plätzen belegt“.
 
 | Taste | Funktion |
@@ -75,6 +75,7 @@ Zeigt den Tagesablauf als Timeline. Die Diashow liest ihn aus der Karte **„Zei
 | P | Pause / weiter |
 | + / − | Dauer ± 5 Sekunden (wird gemerkt) |
 | M | Ton an/aus |
+| T | Tonauswahl (Endsignal, Ticken, Lautstärke) |
 | G | Raster aus-/einblenden (nur Timer, extra groß) |
 | 0 | Zähler zurücksetzen |
 | Esc | Timer anhalten |
