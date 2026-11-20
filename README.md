@@ -14,6 +14,38 @@ Entstanden am Barcamp-Tag #3B12 (19.11.2026), gepflegt vom Team digitale Schulen
 - **Corporate Design** des Bremer BildungsBarcamps: Noto Sans, Barcamp-Rot, rote Pills und eine Himmel-Hügel-Landschaft. Ein Logo kann man optional hochladen.
 - **Vollbild, Tastenkürzel, automatische Textanpassung** an die Bildschirmgröße.
 
+## 🚀 Schnellstart für ein neues Barcamp
+
+Die Seiten laufen direkt über GitHub Pages, man muss nichts herunterladen:
+
+- **Diashow (Beamer):** https://skb-referat10.github.io/barcamp-diashow/
+- **Mobiler Sessionplan (Handy/iPad):** https://skb-referat10.github.io/barcamp-diashow/plan.html
+
+### Checkliste
+
+1. **Boards anlegen.** Am einfachsten kopiert man die Boards des letzten Barcamps in TaskCards:
+   - **Sessionplan** in der Ansicht Kanban: eine Spalte pro Raum, eine Spalte **„Zeitslot“**, außerdem „Hinweise“ und „Sessionvorschläge“.
+   - **Session-Dokumentation:** eine Karte pro Session, oben eine Karte mit „Anleitung“ im Titel.
+2. **Zeitslots pflegen.** Pro Slot gehört eine Karte in die Spalte „Zeitslot“, mit Start *und* Ende, z. B. `10:30 - 11:15 Uhr`. Wenn verlängert werden darf, steht dort außerdem „Session Plus“. **Jeder Slot bekommt eine eigene Kartenfarbe.** Die Sessions in den Raum-Spalten erhalten die Farbe ihres Slots.
+   Anzahl der Slots, Räume und Uhrzeiten sind frei. Die Seiten lesen sie bei jedem Laden neu aus.
+3. **Teilen-Links holen.** In TaskCards bei beiden Boards *Teilen → Link kopieren*. Der Link muss `?token=…` enthalten. Lese-Rechte genügen.
+4. **Mobilen Sessionplan einrichten.** `plan.html` ohne Zusatz öffnen, beide Teilen-Links einfügen und auf „Link erzeugen“ tippen. Den QR-Code auf Plakate oder Folien bringen.
+5. **Diashow einrichten.** Auf dem Beamer-Rechner die Diashow öffnen und im Startdialog eintragen:
+   - Doku-Link, Sessionplan-Link und **Hashtag** der neuen Ausgabe
+   - beim QR-Code „Ganzer Sessionplan“ den Link aus Schritt 4
+   - optional Logo, Social Wall und Fotos
+6. **Generalprobe im Demomodus.** Im Startdialog „Demomodus“ anhaken, Startzeit vor dem ersten Slot wählen, Zeitraffer z. B. 10. Dann einmal durchlaufen lassen: Stimmen Räume, Slots und Farben? Beim mobilen Plan geht das mit `&zeit=10:20` am Ende des Links.
+
+> 💡 **Testen mit einem alten Barcamp:** Die Teilen-Links früherer Ausgaben einfach im Demomodus eintragen. Der Tag wird dann mit den echten Sessions und Dokus von damals nachgespielt. Das klappt nur, wenn das alte Board schon diese Struktur hatte: Spalte „Zeitslot“ und eine Farbe pro Slot.
+
+### Typische Stolpersteine
+
+- **Eine Session erscheint im falschen Slot:** Die Kartenfarbe passt nicht zur Farbe ihres Zeitslots.
+- **Eine Spalte wird als Raum angezeigt, obwohl sie keiner ist** (z. B. „Pause“): Den Inhalt in „Hinweise“ verschieben. Ignoriert werden nur Spalten, die mit „Hinweise“, „Sessionvorschläge“, „Zeitslot“ oder „Ideen“ beginnen.
+- **Ein Slot fehlt:** In der Zeitslot-Karte steht nur „ab 10:30“. Es braucht Start *und* Ende.
+- **Platzhalter** wie „Session 7.1“, „-“, „frei“ oder „TBD“ werden automatisch ausgeblendet.
+- **Kein Zugriff:** Der Link enthält kein `?token=…`, oder der Teilen-Link wurde in TaskCards zurückgezogen.
+
 ## 📱 Mobiler Sessionplan (`plan.html`)
 
 Eine zweite, für Handy und iPad gemachte Ansicht nur mit dem Sessionplan. Sie hat drei Reiter:

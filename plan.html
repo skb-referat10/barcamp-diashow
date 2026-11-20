@@ -317,7 +317,7 @@ function viewJetzt(now) {
     const pct = Math.max(0, Math.min(100, (now - cur.start) / (cur.end - cur.start) * 100));
     const my = cur.sessions.filter(x => mine.has(x.id));
     h += `<div class="card hero"><span class="pill">${now < cur.start ? 'Gleich geht’s los' : now >= cur.end ? 'Läuft noch (Session Plus)' : 'Jetzt läuft'}</span>
-      <h2>${my.length ? '⭐ ' + esc(my[0].title) : fmt(cur.start) + '–' + fmt(cur.end) + ' Uhr'}</h2>
+      <h2>${my.length ? '⭐ ' + esc(my[0].title) : cur.sessions.length + ' Sessions parallel'}</h2>
       <div class="when">${my.length ? '📍 ' + esc(my[0].room) + ' · ' : ''}${fmt(cur.start)}–${fmt(cur.end)} Uhr</div>
       <div class="rest">${st.label}${my.length > 1 ? ' · du hast ' + my.length + ' Sessions in diesem Slot gemerkt' : ''}</div>
       ${now >= cur.start && now < cur.end ? `<div class="progress"><i style="width:${pct}%"></i></div>` : ''}</div>`;
@@ -365,6 +365,7 @@ function viewMein(now) {
       <div class="slothead"><h2>${fmt(s.start)}–${fmt(s.end)} Uhr</h2><span class="chip ${st.cls}">${st.label}</span></div>`;
     if (my.length > 1) h += `<div class="warn">⚠️ ${my.length} Sessions zur gleichen Zeit – entscheide dich vor Ort 😉</div>`;
     h += my.length ? my.map(sessHTML).join('')
+      : st.cls === 'done' ? '<div class="empty">Keine Session gemerkt.</div>'
       : `<div class="empty">Noch nichts gewählt. <button data-act="goslot" data-slot="${s.start}">Session wählen</button></div>`;
     h += '</div>';
   });

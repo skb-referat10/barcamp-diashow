@@ -37,6 +37,7 @@ function open(hash) {
   const rooms = $$('.sess .title').map(x => x.textContent);
   check('„Jetzt“: 6 Sessions im Slot + 6 danach, keine Platzhalter', rooms.length === 12 && !rooms.some(t => /Session 7/.test(t)), rooms.length);
   check('Restzeit „noch 10 Min.“', $('.slothead .chip').textContent.includes('noch 10 Min.'), $('.slothead .chip').textContent);
+  check('Ohne Merken: „6 Sessions parallel“ statt doppelter Uhrzeit', $('.hero h2').textContent === '6 Sessions parallel', $('.hero h2').textContent);
   check('Doku-Hinweis: 2 im aktuellen + 3 im nächsten Slot', $$('.sess .doc').length === 5, $$('.sess .doc').length);
   // Beschreibung aus „Sessionvorschläge“
   const alles = $$('.sess').find(s => s.querySelector('.title').textContent === 'Alles KI oder was?');
@@ -55,7 +56,7 @@ function open(hash) {
   // Mein Plan
   $('nav button[data-tab="mein"]').click(); await sleep(10);
   check('Mein Plan: Konflikt-Warnung im Slot 11:45', $$('.warn').length === 1);
-  check('Mein Plan: leere Slots mit „Session wählen“', $$('.empty button').length === 2);
+  check('Mein Plan: „Session wählen“ nur bei kommenden Slots (vergangener ohne Knopf)', $$('.empty button').length === 1 && $$('.empty').length === 2);
   check('Plan im Gerät gespeichert', JSON.parse(w.localStorage.getItem('barcampPlan_' + PLAN_ID)).length === 2);
 
   // Alle Sessions + Suche
