@@ -96,7 +96,14 @@ function render() {
     const wait = nxt.start - nowM;
     nowHTML = `<span class="pill">Gleich geht’s los</span><h1 class="big">Willkommen beim Bremer BildungsBarcamp!</h1>
       <div class="rest">${wait <= 120 ? 'Start in ' + wait + ' Min.' : 'Los geht’s um ' + BC.fmt(nxt.start) + ' Uhr'}</div>`;
-  } else nowHTML = `<span class="pill">Zeitplan</span><h1 class="big">Kein Zeitplan gefunden</h1>`;
+  } else {
+    // Hilfreiche Diagnose, woran es liegt
+    const why = !P.hasSlotList && !P.rooms.length
+      ? `Das eingestellte Board „${BC.esc(P.name)}“ sieht nicht wie der Sessionplan aus (keine Raum-Spalten, keine Spalte „Zeitslot“). Ist hier vielleicht der Link des <b>Doku-Boards</b> eingetragen?`
+      : `Im Board „${BC.esc(P.name)}“ gibt es keine Karte „Zeitplan“ mit Zeilen wie <i>09:15 Uhr - Session-Vorstellung</i>${P.slots.length ? '' : ' und keine Zeitslots'}.`;
+    nowHTML = `<span class="pill">Zeitplan</span><h1 class="big">Kein Zeitplan gefunden</h1>
+      <div class="diag">${why}<br><button onclick="BC.resetPlan()">Sessionplan-Link neu eingeben</button></div>`;
+  }
 
   const nextHTML = nxt && cur ? `<div class="panel nextcard"><div class="lbl">Danach · ${BC.fmt(nxt.start)} Uhr${nxt.start - nowM <= 60 ? ' · in ' + (nxt.start - nowM) + ' Min.' : ''}</div><div class="txt">${BC.esc(nxt.text)}</div></div>` : '';
   const qr = C.planQr ? BC.qrSvg(C.planQr) : '';
@@ -132,6 +139,11 @@ function fromSlots(slots) {
 async function refresh() {
   try { P = await BC.loadPlan(C); lastOk = new Date(); err = ''; }
   catch (e) { err = e.message; console.warn('Zeitplan:', e); }
+  if (!P) {   // Laden fehlgeschlagen → Ursache zeigen statt endlos „Lade …“
+    BC.$('app').innerHTML = `<div class="setup"><span class="pill">Zeitplan</span><h1>Sessionplan nicht erreichbar</h1>
+      <p>${BC.esc(err)}</p><div class="diag">Stimmt der Teilen-Link (mit <code>?token=…</code>)? Ist der Rechner online?<br><button onclick="BC.resetPlan()">Sessionplan-Link neu eingeben</button></div></div>`;
+    return;
+  }
   render();
 }
 

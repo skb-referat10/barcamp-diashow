@@ -1429,8 +1429,8 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'ArrowLeft') show(idx - 1);
   else if (e.key === ' ') { e.preventDefault(); paused = !paused; updateCounter(); scheduleNext(); }
   else if (e.key.toLowerCase() === 'f') toggleFull();
-  else if (e.key === '2') location.href = 'zeitplan.html' + location.hash;
-  else if (e.key === '3') location.href = 'sessionplanung.html' + location.hash;
+  else if (e.key === '2') location.href = viewLink('zeitplan.html');
+  else if (e.key === '3') location.href = viewLink('sessionplanung.html');
   else if (e.key.toLowerCase() === 'r') { refresh(); toast('🔄 lade neu …'); }
   else if (e.key.toLowerCase() === 's') { $('setup').style.display = 'flex'; }
 });
@@ -1440,6 +1440,25 @@ window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTi
   const cur = [...$('slideWrap').querySelectorAll('.slide.show')].pop();
   if (cur && $('setup').style.display === 'none') fitSlide(cur);
 }, 300); });
+
+// ---------- Wechsel zu Zeitplan / Sessionplanung ----------
+// Sessionplan-Link und Hashtag in der Adresse mitgeben – so klappt es auch, wenn die Diashow
+// als lokale Datei läuft (dann geht es zur Online-Fassung auf GitHub Pages)
+const PAGES_URL = 'https://skb-referat10.github.io/barcamp-diashow/';
+function viewLink(file) {
+  const base = location.protocol === 'file:' ? PAGES_URL : '';
+  const hp = new URLSearchParams();
+  const p = parseLink(cfg.plan || '');
+  if (p) { hp.set('plan', p.id + '.' + p.token); if (!/hb\.taskcards\.app$/.test(p.host)) hp.set('host', p.host.replace(/^https?:\/\//, '')); }
+  if (cfg.tag) hp.set('tag', cfg.tag);
+  if (cfg.planQr) hp.set('qr', cfg.planQr);
+  if (cfg.demo) hp.set('zeit', fmtMin(nowMin()));
+  return base + file + (hp.toString() ? '#' + hp.toString() : '');
+}
+document.getElementById('viewNav').addEventListener('click', e => {
+  const a = e.target.closest('a'); if (!a || a.classList.contains('on')) return;
+  e.preventDefault(); location.href = viewLink(a.getAttribute('href'));
+});
 
 // ---------- Vollbild ----------
 function toggleFull(on) {

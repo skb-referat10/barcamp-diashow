@@ -116,6 +116,11 @@ const check = (name, cond, info) => { console.log((cond ? '✔ ' : '✘ ') + nam
   const shown = [...$('slideWrap').querySelectorAll('.slide')].pop();
   check('Collage wird in der Rotation gezeigt', ev('extraList().some(x=>x.type==="collage")') && shown.className.includes('slide'), shown.className);
 
+  // 11) Wechsel zu Zeitplan/Sessionplanung nimmt Sessionplan und Hashtag mit
+  ev(`cfg.demo=false; cfg.plan='https://hb.taskcards.app/#/board/${PLAN_ID}?token=abc'; cfg.tag='#3B12'; cfg.planQr='';`);
+  const vl = ev(`viewLink('zeitplan.html')`);
+  check('Taste 2: Link enthält Sessionplan und Hashtag', vl === `zeitplan.html#plan=${PLAN_ID}.abc&tag=%233B12`, vl);
+
   console.log(fails ? `\n${fails} Test(s) fehlgeschlagen` : '\nAlle Tests bestanden');
   process.exit(fails ? 1 : 0);
 })().catch(e => { console.error('FEHLER', e); process.exit(1); });

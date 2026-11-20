@@ -53,6 +53,18 @@ const txt = w => w.document.body.textContent.replace(/\s+/g, ' ');
   // (QR-Bibliothek ist im Test nicht geladen – daher nur prüfen, dass der Link übernommen wurde)
   check('Übernimmt Board, Hashtag und Handy-QR-Link aus den Diashow-Einstellungen',
     w.document.querySelectorAll('.item').length === 15 && /#3B12/.test(txt(w)) && w.eval('C.planQr') === 'https://example.test/plan.html#plan=x');
+  // falsches Board (Doku statt Sessionplan) → verständlicher Hinweis
+  const savedP = fx.p; fx.p = { name: '#3B12 - Dokumentation', lists: [], cards: [{ id: 'x', title: 'Korea Live', description: 'Text', color: '#fff', kanbanPosition: null }] };
+  w = open('zeitplan.html', `#plan=${PLAN_ID}.t&zeit=09:20`);
+  await sleep(150);
+  check('Doku-Board statt Sessionplan → Hinweis „Link des Doku-Boards“', /Kein Zeitplan gefunden/.test(txt(w)) && /Doku-Boards/.test(txt(w)));
+  fx.p = savedP;
+  // Zeitplan-Karte mit Emoji im Titel wird auch erkannt
+  const zp = fx.p.cards.find(c => c.id === 'pzeitplan'); zp.title = '🗓️ Unser Zeitplan';
+  w = open('zeitplan.html', `#plan=${PLAN_ID}.t&zeit=09:20`);
+  await sleep(150);
+  check('„🗓️ Unser Zeitplan“ wird erkannt', w.document.querySelectorAll('.item').length === 15);
+  zp.title = 'Zeitplan ';
   w = open('zeitplan.html', '');
   await sleep(50);
   check('Ohne Board → Einrichtung', !!w.document.getElementById('bcLink'));
@@ -69,8 +81,10 @@ const txt = w => w.document.body.textContent.replace(/\s+/g, ' ');
   check('Leertaste startet Vorstellung #1', ev('T.state') === 'run' && /Vorstellung #1/.test(d.querySelector('.count').textContent));
   ev('T.end = Date.now() + 8000'); await sleep(150);
   check('≤10 s: Warnfarbe', d.querySelector('.timer').classList.contains('warn'));
-  ev('T.end = Date.now() + 3500'); await sleep(150);
-  check('≤5 s: kritisch + Piepton-Zähler', d.querySelector('.timer').classList.contains('crit') && ev('T.lastBeep') === 4, ev('T.lastBeep'));
+  ev('T.end = Date.now() + 4500'); await sleep(150);
+  check('≤5 s: rot, aber noch kein Ticken', d.querySelector('.timer').classList.contains('crit') && ev('T.lastBeep') === null, ev('T.lastBeep'));
+  ev('T.end = Date.now() + 2500'); await sleep(150);
+  check('≤3 s: leises Ticken beginnt', ev('T.lastBeep') === 3, ev('T.lastBeep'));
   ev('T.end = Date.now() - 10'); await sleep(150);
   check('0 s: „Zeit!“', ev('T.state') === 'done' && /Zeit!/.test(d.querySelector('.ring .num span').textContent) && d.querySelector('.timer').classList.contains('done'));
   d.dispatchEvent(new w.KeyboardEvent('keydown', { key: ' ' })); await sleep(150);

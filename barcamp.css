@@ -47,3 +47,9 @@ body.mouse #bcNav { opacity:1; pointer-events:auto; }
 .setup button { margin-top:14px; width:100%; padding:13px; border:0; border-radius:999px; background:var(--red); color:#fff; font:inherit; font-weight:700; font-size:17px; cursor:pointer; }
 .setup .err { color:var(--red); margin-top:10px; }
 .loading { position:relative; z-index:2; text-align:center; margin-top:40vh; font-size:24px; color:var(--muted); }
+
+#bcToast { position:fixed; top:3vh; left:50%; transform:translateX(-50%); z-index:30; background:var(--ink); color:#fff; padding:10px 20px; border-radius:999px;
+  font-weight:700; opacity:0; transition:opacity .3s; pointer-events:none; }
+#bcToast.show { opacity:1; }
+.diag { background:#fff3cd; color:#5c4500; border-radius:14px; padding:1.6vh 1.4vw; margin-top:1.6vh; font-size:clamp(13px,1.2vw,22px); line-height:1.4; }
+.diag button { margin-top:1vh; border:0; border-radius:999px; background:var(--red); color:#fff; font:inherit; font-weight:700; padding:.4em 1em; cursor:pointer; }

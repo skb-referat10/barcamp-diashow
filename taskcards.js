@@ -29,7 +29,7 @@ const BC = (() => {
     const hp = p.get('plan');
     if (hp && /^[0-9a-f-]{36}/i.test(hp)) { const [id, token] = hp.split('.'); plan = { id, token: token || '' }; }
     else if (cfg.plan) { const s = parseShare(cfg.plan); if (s) { plan = { id: s.id, token: s.token }; host = s.host; } }
-    return { plan, host, zeit: p.get('zeit'), tag: cfg.tag || '', planQr: cfg.planQr || '', cfg };
+    return { plan, host, zeit: p.get('zeit'), tag: p.get('tag') || cfg.tag || '', planQr: p.get('qr') || cfg.planQr || '', cfg };
   }
 
   // ---------- Uhrzeit (mit #zeit=09:10 simulierbar) ----------
@@ -101,6 +101,16 @@ const BC = (() => {
     return items;
   }
 
+  // Karte mit „Zeitplan“, „Ablauf“ oder „Programm“ im Titel (auch mit Emoji davor); sonst jede Karte mit
+  // mindestens 3 Zeilen der Form „09:15 Uhr - …“
+  function findAgenda(cards) {
+    const byTitle = cards.find(c => /(zeitplan|ablauf|programm)/i.test(firstLine(c.title)) && parseAgenda(plainText(c.description)).length >= 2);
+    if (byTitle) return parseAgenda(plainText(byTitle.description));
+    let best = [];
+    cards.forEach(c => { const a = parseAgenda(plainText(c.title) + '\n' + plainText(c.description)); if (a.length >= 3 && a.length > best.length) best = a; });
+    return best;
+  }
+
   function parsePlan(b) {
     const inList = l => b.cards.filter(c => c.kanbanPosition && c.kanbanPosition.listId === l.id)
                                .sort((x, y) => x.kanbanPosition.position - y.kanbanPosition.position);
@@ -130,12 +140,25 @@ const BC = (() => {
     const prop = lists.find(l => /^sessionvorschl/i.test(l.name.trim()));
     const proposals = prop ? inList(prop).filter(c => firstLine(c.title)).length : 0;
     // Tagesablauf
-    const agendaCard = b.cards.find(c => /^(zeitplan|ablauf|programm|tagesablauf)\b/i.test(firstLine(c.title)));
-    const agenda = agendaCard ? parseAgenda(plainText(agendaCard.description)) : [];
-    return { name: b.name || '', slots, rooms, sessions, proposals, agenda };
+    const agenda = findAgenda(b.cards);
+    return { name: b.name || '', slots, rooms, sessions, proposals, agenda, hasSlotList: !!slotList };
   }
 
-  async function loadPlan(c) { return parsePlan(await loadBoard(c, c.plan, PLAN_Q)); }
+  async function loadPlan(c) {
+    const P = parsePlan(await loadBoard(c, c.plan, PLAN_Q));
+    // kein Zeitplan im Sessionplan? → im Doku-Board aus den Diashow-Einstellungen nachsehen
+    if (!P.agenda.length && c.cfg.url) {
+      const d = parseShare(c.cfg.url);
+      if (d && d.id !== c.plan.id) {
+        try { P.agenda = findAgenda((await loadBoard(c, { id: d.id, token: d.token }, `query($id:String!){ board(id:$id){ cards { title description } } }`)).cards); }
+        catch (e) { console.warn('Doku-Board:', e.message); }
+      }
+    }
+    return P;
+  }
+
+  // Sessionplan-Link vergessen und Einrichtung neu zeigen
+  function resetPlan() { writeCfg({ plan: '' }); location.hash = ''; location.reload(); }
 
   // ---------- QR-Code ----------
   function qrSvg(text) {
@@ -150,7 +173,7 @@ const BC = (() => {
   // ---------- Einrichtung, falls noch kein Sessionplan bekannt ----------
   function setupForm(box, title) {
     box.innerHTML = `<div class="setup"><span class="pill">Einrichtung</span><h1>${esc(title)}</h1>
-      <p>Teilen-Link des <b>Sessionplan-Boards</b> einfügen (mit <code>?token=…</code>). Er wird im Browser gespeichert und auch von Diashow und den anderen Ansichten genutzt.</p>
+      <p>Teilen-Link des <b>Sessionplan-Boards</b> einfügen, also das Board mit den Raum-Spalten, der Spalte „Zeitslot“ und der Karte „Zeitplan“ (nicht das Doku-Board), mit <code>?token=…</code>. Er wird im Browser gespeichert und auch von Diashow und den anderen Ansichten genutzt.</p>
       <input id="bcLink" placeholder="https://hb.taskcards.app/#/board/…?token=…">
       <button id="bcSave">Speichern & starten</button><div id="bcErr" class="err"></div></div>`;
     $('bcSave').onclick = () => {
@@ -168,20 +191,30 @@ const BC = (() => {
     if (document.fullscreenElement) document.exitFullscreen();
     else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
   }
+  // „S“ zweimal innerhalb von 3 s: Sessionplan-Link neu eingeben
+  let armed = 0;
+  function confirmReset() { if (Date.now() - armed < 3000) return true; armed = Date.now(); flash('Nochmal S drücken, um den Sessionplan-Link neu einzugeben'); return false; }
+  function flash(msg) {
+    let t = $('bcToast'); if (!t) { t = document.createElement('div'); t.id = 'bcToast'; document.body.appendChild(t); }
+    t.textContent = msg; t.classList.add('show'); clearTimeout(flash.t); flash.t = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
   function installChrome(current) {
     const nav = document.createElement('div');
     nav.id = 'bcNav';
     nav.innerHTML = VIEWS.map(([k, f, l]) => `<a href="${f}" data-f="${f}" class="${f === current ? 'on' : ''}"><kbd>${k}</kbd> ${l}</a>`).join('')
-      + '<button type="button" id="bcFull">⛶ Vollbild</button>';
+      + '<button type="button" id="bcFull">⛶ Vollbild</button><button type="button" id="bcSet" title="Sessionplan-Link ändern">⚙︎</button>';
     document.body.appendChild(nav);
     nav.addEventListener('click', e => { const a = e.target.closest('a[data-f]'); if (a) { e.preventDefault(); goView(a.dataset.f); } });
     $('bcFull').onclick = toggleFull;
+    $('bcSet').onclick = () => { if (confirmReset()) resetPlan(); };
     document.addEventListener('fullscreenchange', () => { $('bcFull').textContent = document.fullscreenElement ? '✕ Vollbild beenden' : '⛶ Vollbild'; });
     document.addEventListener('keydown', e => {
       if (e.target.closest && e.target.closest('input, textarea')) return;
       const v = VIEWS.find(([k]) => k === e.key);
       if (v && v[1] !== current) goView(v[1]);
       if (e.key.toLowerCase() === 'f') toggleFull();
+      if (e.key.toLowerCase() === 's' && confirmReset()) resetPlan();
     });
     // Navigation und Mauszeiger nur bei Mausbewegung zeigen
     let t = null;
@@ -198,6 +231,6 @@ const BC = (() => {
     apply(best); return best;
   }
 
-  return { $, esc, fmt, conf, readCfg, writeCfg, parseShare, nowSec, loadPlan, parsePlan, parseAgenda, plainText, isPlaceholder,
+  return { $, esc, fmt, conf, resetPlan, findAgenda, readCfg, writeCfg, parseShare, nowSec, loadPlan, parsePlan, parseAgenda, plainText, isPlaceholder,
            qrSvg, setupForm, installChrome, toggleFull, maxFit };
 })();

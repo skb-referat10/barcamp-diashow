@@ -60,10 +60,13 @@ Mit den Tasten **1 / 2 / 3** wechselt man zwischen drei Ansichten. Alternativ di
 
 Zeigt den Tagesablauf als Timeline. Die Diashow liest ihn aus der Karte **„Zeitplan“** im Sessionplan-Board, mit einer Zeile pro Programmpunkt, z. B. `09:15 Uhr - Session-Vorstellung`. Rechts stehen der aktuelle Punkt groß mit Restzeit und Fortschritt, was danach kommt, und der QR-Code zum mobilen Sessionplan. Bei Session-Blöcken steht dabei, wie viele Sessions parallel laufen. Gibt es keine Zeitplan-Karte, baut die Ansicht den Ablauf aus den Zeitslots.
 
+> ⚠️ Zeitplan und Sessionplanung brauchen den Link des **Sessionplan-Boards**, nicht den des Doku-Boards. Ist der falsche Link hinterlegt, zeigt die Seite einen Hinweis. Mit ⚙︎ in der Leiste unten (oder zweimal **S**) kann man den Link neu eingeben. Läuft die Diashow als heruntergeladene Datei, öffnen die Tasten 2/3 automatisch die Online-Fassung und nehmen den Sessionplan-Link mit.
+
 ### 🎤 Sessionplanung mit Vorstellungs-Timer
 
-- **30-Sekunden-Timer** als großer Ring. Ab 10 Sekunden wird er gelb, ab 5 Sekunden rot mit Piepton pro Sekunde, bei 0 kommt ein **Gong** und die Fläche blinkt rot.
+- **30-Sekunden-Timer** als großer Ring. Ab 10 Sekunden wird er gelb, ab 5 Sekunden rot, bei 0 blinkt die Fläche rot.
 - **Leertaste** (oder Klick auf den Ring) startet sofort die **nächste Vorstellung**, beliebig oft. Ein Zähler zeigt „Vorstellung #12“.
+- Leises „Tock“ in den letzten 3 Sekunden, am Ende ein **klassischer Schulgong** (drei absteigende Glockentöne).
 - Daneben das **Live-Raster** aus Räumen und Zeitslots. Es wird alle 10 Sekunden aktualisiert und hebt neue Einträge hervor: „17 von 24 Plätzen belegt“.
 
 | Taste | Funktion |
