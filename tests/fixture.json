@@ -1,0 +1,643 @@
+{
+ "d": {
+  "name": "#3B12 - Dokumentation",
+  "lists": [],
+  "cards": [
+   {
+    "id": "doc-13b2",
+    "title": "Kritische KI Kompetenzen:Wie können Bibliotheken in Zeiten von KI unterstützen?",
+    "description": "<div>Die Vermittlung von KI-Kompetenzen ist fester Bestandteil der Schulungen.</div>",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [
+     {
+      "filename": "QR.png",
+      "mimetype": "image/png",
+      "length": "1000",
+      "previewLink": "https://example.test/QR.png",
+      "downloadLink": "https://example.test/QR.png"
+     }
+    ],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 7
+    }
+   },
+   {
+    "id": "doc-15ea",
+    "title": "Zukunft ? Machen wir selbst!",
+    "description": "",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [
+     {
+      "filename": "Zukunft.pdf",
+      "mimetype": "application/pdf",
+      "length": "1000",
+      "previewLink": "https://example.test/Zukunft.pdf",
+      "downloadLink": "https://example.test/Zukunft.pdf"
+     }
+    ],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 8
+    }
+   },
+   {
+    "id": "doc-3e14",
+    "title": "Korea Live",
+    "description": "<div>Unterricht in einer Klasse ohne gemeinsame Sprache. Referent:in unterrichtet an der Jeonnam Mirae Tech Highschool. Referent:in unterrichtet an der Jeonnam Mirae Tech Highschool. Referent:in unterrichtet an der Jeonnam Mirae Tech Highschool. Referent:in unterrichtet an der Jeonnam Mirae Tech Highschool. Referent:in unterrichtet an der Jeonnam Mirae Tech Highschool. Referent:in unterrichtet an der Jeonnam Mirae Tech Highschool. Referent:in unterrichtet an der Jeonnam Mirae Tech Highschool. Referent:in unterrichtet an der Jeonnam Mirae Tech Highschool. </div>",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [
+     {
+      "filename": "IMG_4544.JPG",
+      "mimetype": "image/jpeg",
+      "length": "1000",
+      "previewLink": "https://example.test/IMG_4544.JPG",
+      "downloadLink": "https://example.test/IMG_4544.JPG"
+     },
+     {
+      "filename": "IMG_4547.JPG",
+      "mimetype": "image/jpeg",
+      "length": "1000",
+      "previewLink": "https://example.test/IMG_4547.JPG",
+      "downloadLink": "https://example.test/IMG_4547.JPG"
+     }
+    ],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 5
+    }
+   },
+   {
+    "id": "doc-524f",
+    "title": "",
+    "description": "",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 13
+    }
+   },
+   {
+    "id": "doc-5273",
+    "title": "KI für Fortgeschrittene – Workflows + Fragen aus der Praxis",
+    "description": "",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 2
+    }
+   },
+   {
+    "id": "doc-6a2c",
+    "title": "Alles KI oder was? ",
+    "description": "Hier: <a href=\"https://hb.itslearning.com/eportfolio/x\">Mehr Infos</a>",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [
+     {
+      "filename": "Kurzgeschichte.pdf",
+      "mimetype": "application/pdf",
+      "length": "1000",
+      "previewLink": "https://example.test/Kurzgeschichte.pdf",
+      "downloadLink": "https://example.test/Kurzgeschichte.pdf"
+     },
+     {
+      "filename": "a.png",
+      "mimetype": "image/png",
+      "length": "1000",
+      "previewLink": "https://example.test/a.png",
+      "downloadLink": "https://example.test/a.png"
+     }
+    ],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 6
+    }
+   },
+   {
+    "id": "doc-800b",
+    "title": "Lernen und Weiterbildung durch AIS.chat-Assistenten",
+    "description": "Referent:in<div>- Impulsfrage: Wer hat sich noch nie bei AIS Chat angemeldet?</div>Referent:in<div>- Impulsfrage: Wer hat sich noch nie bei AIS Chat angemeldet?</div>Referent:in<div>- Impulsfrage: Wer hat sich noch nie bei AIS Chat angemeldet?</div>Referent:in<div>- Impulsfrage: Wer hat sich noch nie bei AIS Chat angemeldet?</div>Referent:in<div>- Impulsfrage: Wer hat sich noch nie bei AIS Chat angemeldet?</div>",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 4
+    }
+   },
+   {
+    "id": "doc-91e9",
+    "title": "Zettelchaos bei Kurswahlen",
+    "description": "<p>Session-Doku: KI-gestütztes Kurswahl-Tool. Vorgestellt wurde ein Open-Source-Tool.</p><p>Session-Doku: KI-gestütztes Kurswahl-Tool. Vorgestellt wurde ein Open-Source-Tool.</p><p>Session-Doku: KI-gestütztes Kurswahl-Tool. Vorgestellt wurde ein Open-Source-Tool.</p><p>Session-Doku: KI-gestütztes Kurswahl-Tool. Vorgestellt wurde ein Open-Source-Tool.</p><p>Session-Doku: KI-gestütztes Kurswahl-Tool. Vorgestellt wurde ein Open-Source-Tool.</p>",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [
+     {
+      "filename": "Kurswahl.html",
+      "mimetype": "text/html",
+      "length": "1000",
+      "previewLink": "https://example.test/Kurswahl.html",
+      "downloadLink": "https://example.test/Kurswahl.html"
+     }
+    ],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 10
+    }
+   },
+   {
+    "id": "doc-9ff1",
+    "title": "",
+    "description": "",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [
+     {
+      "filename": "IMG_0457.jpeg",
+      "mimetype": "image/jpeg",
+      "length": "1000",
+      "previewLink": "https://example.test/IMG_0457.jpeg",
+      "downloadLink": "https://example.test/IMG_0457.jpeg"
+     }
+    ],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 12
+    }
+   },
+   {
+    "id": "doc-a369",
+    "title": "Visual thinking ✍🏼",
+    "description": "",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [
+     {
+      "filename": "BBB 19.11.26.pdf",
+      "mimetype": "application/pdf",
+      "length": "1000",
+      "previewLink": "https://example.test/BBB 19.11.26.pdf",
+      "downloadLink": "https://example.test/BBB 19.11.26.pdf"
+     }
+    ],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 11
+    }
+   },
+   {
+    "id": "doc-c071",
+    "title": "\nKI beGreifen \n\nFolien https://canva.link/bjlvvxevi0inmcc\n\n",
+    "description": "<div>Material mit den Stationskarten</div>",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 3
+    }
+   },
+   {
+    "id": "doc-da99",
+    "title": "",
+    "description": "",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 9
+    }
+   },
+   {
+    "id": "doc-e192",
+    "title": "",
+    "description": "",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [
+     {
+      "filename": "Kopie.png",
+      "mimetype": "image/png",
+      "length": "1000",
+      "previewLink": "https://example.test/Kopie.png",
+      "downloadLink": "https://example.test/Kopie.png"
+     }
+    ],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 0
+    }
+   },
+   {
+    "id": "doc-ef10",
+    "title": "Anleitung zur Dokumentation von Sessions beim Bremer BildungsBarcamp",
+    "description": "Die Dokumentation ...",
+    "link": "",
+    "created": "1795091439821",
+    "color": "#ffffff",
+    "attachments": [],
+    "kanbanPosition": null,
+    "timeLinePosition": null,
+    "storyPosition": {
+     "position": 1
+    }
+   }
+  ]
+ },
+ "p": {
+  "lists": [
+   {
+    "id": "lm",
+    "name": "Marktplatz",
+    "position": 10
+   },
+   {
+    "id": "lw",
+    "name": "WERDERSEE",
+    "position": 3
+   },
+   {
+    "id": "lwa",
+    "name": "WALLERSAND",
+    "position": 7
+   },
+   {
+    "id": "lv",
+    "name": "Sessionvorschläge",
+    "position": 1
+   },
+   {
+    "id": "ls",
+    "name": "STEINTORVIERTEL",
+    "position": 4
+   },
+   {
+    "id": "lc",
+    "name": "COLUMBUSKAJE",
+    "position": 5
+   },
+   {
+    "id": "lb",
+    "name": "BLOCKLAND",
+    "position": 9
+   },
+   {
+    "id": "lz",
+    "name": "Zeitslot",
+    "position": 2
+   },
+   {
+    "id": "lk",
+    "name": "KNOOPSPARK",
+    "position": 6
+   },
+   {
+    "id": "lsd",
+    "name": "SEDANPLATZ",
+    "position": 8
+   },
+   {
+    "id": "lh",
+    "name": "Hinweise",
+    "position": 0
+   }
+  ],
+  "cards": [
+   {
+    "id": "p0",
+    "title": "Escape-Games und Klassenzimmertools mit AIS.chat",
+    "description": "Referent:in A",
+    "color": "#e4e467",
+    "kanbanPosition": {
+     "listId": "lw",
+     "position": 0
+    }
+   },
+   {
+    "id": "p1",
+    "title": "Das \"große\" AIS - Eine Chance für uns?",
+    "description": "Referent:in B",
+    "color": "#3cdd3c",
+    "kanbanPosition": {
+     "listId": "lw",
+     "position": 1
+    }
+   },
+   {
+    "id": "p2",
+    "title": "Schluss mit dem Zettelchaos - Kurswahl digital und fair verteilen",
+    "description": "Referent:in C",
+    "color": "#6767e4",
+    "kanbanPosition": {
+     "listId": "lw",
+     "position": 2
+    }
+   },
+   {
+    "id": "p3",
+    "title": "Korea live",
+    "description": "Referent:in D",
+    "color": "#e4e467",
+    "kanbanPosition": {
+     "listId": "ls",
+     "position": 0
+    }
+   },
+   {
+    "id": "p4",
+    "title": "VETAssIst - e-learning zu KI",
+    "description": "Referent:in E",
+    "color": "#3cdd3c",
+    "kanbanPosition": {
+     "listId": "ls",
+     "position": 1
+    }
+   },
+   {
+    "id": "p5",
+    "title": "Visual Thinking  - denken mit dem Stift, iPad und Ki?!",
+    "description": "Referent:in F",
+    "color": "#6767e4",
+    "kanbanPosition": {
+     "listId": "ls",
+     "position": 2
+    }
+   },
+   {
+    "id": "p6",
+    "title": "Erasmus+ und KI",
+    "description": "Referent:in G",
+    "color": "#e4e467",
+    "kanbanPosition": {
+     "listId": "lc",
+     "position": 0
+    }
+   },
+   {
+    "id": "p7",
+    "title": "Alles KI oder was?",
+    "description": "Referent:in H",
+    "color": "#3cdd3c",
+    "kanbanPosition": {
+     "listId": "lc",
+     "position": 1
+    }
+   },
+   {
+    "id": "p8",
+    "title": "Von Daten zu Dialog: Learning Analytics für Unterrichts- und Schulentwicklung",
+    "description": "Referent:in I",
+    "color": "#6767e4",
+    "kanbanPosition": {
+     "listId": "lc",
+     "position": 2
+    }
+   },
+   {
+    "id": "p9",
+    "title": "Lernen und Weiterbildung durch AIS.chat-Assistenten",
+    "description": "Referent:in J",
+    "color": "#e4e467",
+    "kanbanPosition": {
+     "listId": "lk",
+     "position": 0
+    }
+   },
+   {
+    "id": "p10",
+    "title": "KI für Fortgeschrittene - Workflows + Fragen aus der Praxis",
+    "description": "Referent:in K",
+    "color": "#3cdd3c",
+    "kanbanPosition": {
+     "listId": "lk",
+     "position": 1
+    }
+   },
+   {
+    "id": "p11",
+    "title": "KI-beGreifen für alle",
+    "description": "Referent:in L",
+    "color": "#6767e4",
+    "kanbanPosition": {
+     "listId": "lk",
+     "position": 2
+    }
+   },
+   {
+    "id": "p12",
+    "title": "Unterricht(weiter)Entwicklung - Ein Werkstattbericht mit Praxisbeispielen",
+    "description": "Referent:in M",
+    "color": "#e4e467",
+    "kanbanPosition": {
+     "listId": "lwa",
+     "position": 0
+    }
+   },
+   {
+    "id": "p13",
+    "title": "KI in der Lernbegleitung",
+    "description": "Referent:in N",
+    "color": "#3cdd3c",
+    "kanbanPosition": {
+     "listId": "lwa",
+     "position": 1
+    }
+   },
+   {
+    "id": "p14",
+    "title": "Wie kommt die Pädagogik in die KI?",
+    "description": "Referent:in O",
+    "color": "#6767e4",
+    "kanbanPosition": {
+     "listId": "lwa",
+     "position": 2
+    }
+   },
+   {
+    "id": "p15",
+    "title": "Zukunft machen wir selbst",
+    "description": "Referent:in P",
+    "color": "#e4e467",
+    "kanbanPosition": {
+     "listId": "lsd",
+     "position": 0
+    }
+   },
+   {
+    "id": "p16",
+    "title": "Texte mit KI weiterdenken ",
+    "description": "Referent:in Q",
+    "color": "#3cdd3c",
+    "kanbanPosition": {
+     "listId": "lsd",
+     "position": 1
+    }
+   },
+   {
+    "id": "p17",
+    "title": "Animierte KI-Inhalte",
+    "description": "Referent:in J",
+    "color": "#6767e4",
+    "kanbanPosition": {
+     "listId": "lsd",
+     "position": 2
+    }
+   },
+   {
+    "id": "p18",
+    "title": "Kritische KI-Kompetenzen - Wie können Bibliotheken im Zeitalter von KI helfen?",
+    "description": "Referent:in R",
+    "color": "#e4e467",
+    "kanbanPosition": {
+     "listId": "lb",
+     "position": 0
+    }
+   },
+   {
+    "id": "p19",
+    "title": "-",
+    "description": "",
+    "color": "#3cdd3c",
+    "kanbanPosition": {
+     "listId": "lb",
+     "position": 1
+    }
+   },
+   {
+    "id": "p20",
+    "title": "-",
+    "description": "",
+    "color": "#6767e4",
+    "kanbanPosition": {
+     "listId": "lb",
+     "position": 2
+    }
+   },
+   {
+    "id": "p21",
+    "title": "Session 7.1",
+    "description": "",
+    "color": "#e4e467",
+    "kanbanPosition": {
+     "listId": "lm",
+     "position": 0
+    }
+   },
+   {
+    "id": "p22",
+    "title": "Session 7.2",
+    "description": "",
+    "color": "#3cdd3c",
+    "kanbanPosition": {
+     "listId": "lm",
+     "position": 1
+    }
+   },
+   {
+    "id": "p23",
+    "title": "-",
+    "description": "",
+    "color": "#6767e4",
+    "kanbanPosition": {
+     "listId": "lm",
+     "position": 2
+    }
+   },
+   {
+    "id": "p24",
+    "title": "",
+    "description": "10:30 -11:15 Uhr<br>ggf 15min Session Plus",
+    "color": "#e4e467",
+    "kanbanPosition": {
+     "listId": "lz",
+     "position": 0
+    }
+   },
+   {
+    "id": "p25",
+    "title": "",
+    "description": "11:45 -12:30 Uhr<br>ggf 15min Session Plus",
+    "color": "#3cdd3c",
+    "kanbanPosition": {
+     "listId": "lz",
+     "position": 1
+    }
+   },
+   {
+    "id": "p26",
+    "title": "",
+    "description": "13:45 -14:30 Uhr<br>ggf 15min Session Plus",
+    "color": "#6767e4",
+    "kanbanPosition": {
+     "listId": "lz",
+     "position": 2
+    }
+   },
+   {
+    "id": "p27",
+    "title": "Session-Dokumentation",
+    "description": "https://goto.schule.bremen.de/sessiondoku",
+    "color": "#ffffff",
+    "kanbanPosition": {
+     "listId": "lz",
+     "position": 3
+    }
+   },
+   {
+    "id": "p28",
+    "title": "Alles KI oder was?",
+    "description": "Vorschlag",
+    "color": "#ffffff",
+    "kanbanPosition": {
+     "listId": "lv",
+     "position": 3
+    }
+   },
+   {
+    "id": "p29",
+    "title": "Zeitplan ",
+    "description": "08:30 Uhr - ganz entspannt ankommen",
+    "color": "#57afdb",
+    "kanbanPosition": {
+     "listId": "lh",
+     "position": 3
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b8253a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Barcamp-Plan">
+<title>Sessionplan · Bremer BildungsBarcamp</title>
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=noto-sans:400,600,700,800">
+<!-- QR-Codes nur für die Einrichtung durch die Orga -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+  /* ---------- Corporate Design Bremer BildungsBarcamp, für Handy/iPad ---------- */
+  :root { --red:#b8253a; --red2:#d43448; --grey:#e6e6e6; --ink:#1d1d1b; --muted:#5f6368; --green:#4a8a2e; --greenbg:#eef6e8;
+          --sky1:#bfe3f5; --sky2:#eef8fd; --gold:#e0a800; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { margin:0; font-family:"Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color:var(--ink);
+    background:linear-gradient(180deg, var(--sky1) 0, var(--sky2) 260px, #f6f8f9 520px); min-height:100%; }
+  body { padding-bottom:calc(84px + env(safe-area-inset-bottom)); }
+  .wrap { max-width:760px; margin:0 auto; padding:0 16px; }
+
+  /* Kopfzeile */
+  header { position:sticky; top:0; z-index:5; padding:calc(10px + env(safe-area-inset-top)) 0 10px;
+    background:rgba(238,248,253,.88); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  header .wrap { display:flex; align-items:center; gap:12px; }
+  .brand { flex:1; min-width:0; }
+  .brand small { display:block; color:var(--red); font-weight:800; font-size:13px; letter-spacing:.02em; }
+  .brand h1 { margin:0; font-size:22px; line-height:1.15; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #clock { font-weight:800; font-size:20px; background:#fff; border-radius:999px; padding:4px 12px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+  .demo #clock { outline:2px solid var(--red); }
+  #search { width:100%; margin-top:10px; padding:11px 14px; border-radius:12px; border:1px solid #d6d6d6; font:inherit; font-size:16px; background:#fff; display:none; }
+  body.tab-alle #search { display:block; }
+
+  /* Reiter unten (gut mit dem Daumen erreichbar) */
+  nav { position:fixed; left:0; right:0; bottom:0; z-index:6; background:#fff; border-top:1px solid #e3e3e3;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom)); display:flex; justify-content:center; gap:6px; }
+  nav button { flex:1; max-width:220px; border:0; background:none; font:inherit; color:var(--muted); padding:6px 4px; border-radius:12px;
+    display:flex; flex-direction:column; align-items:center; gap:2px; font-size:12px; font-weight:700; cursor:pointer; }
+  nav button .ic { font-size:22px; line-height:1; }
+  nav button[aria-selected="true"] { color:var(--red); background:#fbe9ec; }
+  .badge { background:var(--red); color:#fff; border-radius:999px; font-size:11px; padding:0 6px; margin-left:3px; }
+
+  /* Bausteine */
+  .pill { display:inline-block; background:var(--red2); color:#fff; font-weight:700; border-radius:999px; padding:3px 11px; font-size:12px; }
+  .card { background:#fff; border-radius:18px; box-shadow:0 6px 22px rgba(29,29,27,.08); padding:16px; margin:14px 0; }
+  .slothead { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:22px 2px 8px; }
+  .slothead h2 { margin:0; font-size:19px; }
+  .chip { font-size:12px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; background:var(--grey); color:var(--ink); }
+  .chip.live { background:var(--red); color:#fff; }
+  .chip.soon { background:#fff3cd; color:#7a5b00; }
+  .chip.done { background:#eee; color:var(--muted); }
+  .hero h2 { margin:6px 0 2px; color:var(--red); font-size:26px; line-height:1.15; }
+  .hero .when { font-weight:800; font-size:17px; }
+  .hero .rest { color:var(--muted); font-size:14px; margin-top:2px; }
+  .progress { height:8px; background:#eee; border-radius:99px; overflow:hidden; margin-top:10px; }
+  .progress i { display:block; height:100%; background:var(--red); border-radius:99px; }
+
+  /* Session-Zeile */
+  .sess { background:#fff; border-radius:14px; margin:8px 0; box-shadow:0 2px 10px rgba(29,29,27,.06); border-left:6px solid var(--grey); overflow:hidden; }
+  .sess.mine { border-left-color:var(--red); background:#fff7f8; }
+  .sess .top { display:flex; align-items:flex-start; gap:10px; padding:12px 8px 12px 12px; cursor:pointer; }
+  .sess .txt { flex:1; min-width:0; }
+  .sess .room { font-size:11.5px; font-weight:800; color:var(--red); text-transform:uppercase; letter-spacing:.05em; }
+  .sess .title { font-weight:700; font-size:16.5px; line-height:1.25; margin-top:1px; }
+  .sess .host { color:var(--muted); font-size:13.5px; margin-top:2px; }
+  .sess .doc { display:inline-block; margin-top:6px; font-size:12px; font-weight:700; color:var(--green); background:var(--greenbg); border-radius:999px; padding:2px 9px; text-decoration:none; }
+  .star { flex:none; width:44px; height:44px; border-radius:50%; border:0; background:#f2f2f2; font-size:22px; cursor:pointer; color:#9a9a9a; }
+  .star[aria-pressed="true"] { background:var(--red); color:#fff; }
+  .more { display:none; padding:0 14px 14px 12px; color:#333; font-size:14.5px; line-height:1.5; white-space:pre-line; }
+  .sess.open .more { display:block; }
+  .sess .hint { color:var(--muted); font-size:12px; margin-top:4px; }
+  .sess.open .hint { display:none; }
+
+  /* Mein Plan */
+  .tl { position:relative; margin-left:8px; padding-left:18px; border-left:3px solid #e3e3e3; }
+  .tl .dot { position:absolute; left:-10px; width:17px; height:17px; border-radius:50%; background:#fff; border:3px solid #cfcfcf; margin-top:24px; }
+  .tl .item { position:relative; }
+  .tl .item.live .dot { border-color:var(--red); background:var(--red); box-shadow:0 0 0 5px rgba(184,37,58,.18); }
+  .tl .item.done .dot { border-color:#bdbdbd; background:#bdbdbd; }
+  .empty { background:#fff; border:2px dashed #d6d6d6; border-radius:14px; padding:14px; color:var(--muted); margin:8px 0; }
+  .empty button, .btn { border:0; border-radius:999px; background:var(--red); color:#fff; font:inherit; font-weight:700; padding:9px 16px; cursor:pointer; }
+  .btn.ghost { background:#fff; color:var(--red); border:2px solid var(--red); }
+  .warn { background:#fff3cd; color:#5c4500; border-radius:12px; padding:8px 12px; font-size:13.5px; margin:6px 0; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0; }
+  footer { color:var(--muted); font-size:12.5px; text-align:center; margin:26px 0 10px; }
+  footer a { color:var(--red); font-weight:700; }
+  #toast { position:fixed; left:50%; bottom:calc(96px + env(safe-area-inset-bottom)); transform:translateX(-50%); background:var(--ink); color:#fff;
+    padding:10px 18px; border-radius:999px; font-weight:700; font-size:14px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:9; max-width:90vw; text-align:center; }
+  #toast.show { opacity:1; }
+
+  /* Einrichtung (für die Orga) */
+  #setup label { display:block; font-weight:700; font-size:14px; margin:14px 0 6px; }
+  #setup input { width:100%; padding:11px 13px; border-radius:10px; border:1px solid #cfcfcf; font:inherit; font-size:15px; }
+  #setup .qr { width:220px; max-width:70vw; margin:12px auto; background:#fff; padding:8px; border-radius:12px; border:3px solid var(--grey); }
+  #setup .qr svg { width:100%; height:auto; display:block; }
+  #shareLink { word-break:break-all; font-size:12.5px; color:var(--muted); }
+  .muted { color:var(--muted); }
+
+  @media (min-width:700px) { .brand h1 { font-size:26px; } .sess .title { font-size:18px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand"><small>Bremer BildungsBarcamp</small><h1 id="appTitle">Sessionplan</h1></div>
+    <div id="clock">--:--</div>
+  </div>
+  <div class="wrap"><input id="search" type="search" placeholder="🔍 Session, Raum oder Name suchen …" autocomplete="off"></div>
+</header>
+
+<main class="wrap" id="view"></main>
+
+<nav id="tabs" role="tablist">
+  <button role="tab" data-tab="jetzt" aria-selected="true"><span class="ic">🕐</span>Jetzt</button>
+  <button role="tab" data-tab="alle" aria-selected="false"><span class="ic">🗓️</span>Alle Sessions</button>
+  <button role="tab" data-tab="mein" aria-selected="false"><span class="ic">⭐</span><span>Mein Plan<span id="mineCount" class="badge" hidden></span></span></button>
+</nav>
+<div id="toast"></div>
+
+<script>
+// =====================================================================
+// Mobile Sessionplan-Ansicht für das Bremer BildungsBarcamp
+// Liest das TaskCards-Board „Sessionplan“ (Spalten = Räume, Spalte „Zeitslot“,
+// Kartenfarbe = Zeitslot). Der persönliche Plan bleibt nur auf diesem Gerät.
+// Adresse: plan.html#plan=<BoardID>.<Token>[&doku=<BoardID>.<Token>][&zeit=10:20]
+// =====================================================================
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+
+// ---------- Einstellungen aus der Adresse (#…) ----------
+function readHash() {
+  const p = new URLSearchParams(location.hash.slice(1));
+  const pair = v => { if (!v) return null; const [id, token] = v.split('.'); return /^[0-9a-f-]{36}$/i.test(id) ? { id, token: token || '' } : null; };
+  return { plan: pair(p.get('plan')), doku: pair(p.get('doku')), host: 'https://' + (p.get('host') || 'hb.taskcards.app'),
+           zeit: p.get('zeit'), mein: p.get('mein') };
+}
+let conf = readHash();
+
+// ---------- Uhrzeit (mit #zeit=10:20 lässt sich ein Barcamp-Tag simulieren) ----------
+const t0 = Date.now();
+function nowMin() {
+  if (conf.zeit && /^\d{1,2}:\d{2}$/.test(conf.zeit)) {
+    const [h, m] = conf.zeit.split(':').map(Number);
+    return h * 60 + m + Math.floor((Date.now() - t0) / 60000);
+  }
+  const d = new Date(); return d.getHours() * 60 + d.getMinutes();
+}
+const fmt = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+
+// ---------- TaskCards-Zugriff (anonymer Besucher + Teilen-Token) ----------
+let visitor = '';
+const granted = new Set();
+async function gql(query, variables) {
+  const r = await fetch(conf.host + '/graphql', { method:'POST', headers: { 'Content-Type':'application/json', 'x-token': visitor },
+    body: JSON.stringify({ query, variables: variables || {} }) });
+  return r.json();
+}
+async function grant(b, fresh) {
+  if (fresh || !visitor) {
+    const v = await gql('mutation { createVisitor { id } }');
+    visitor = v.data.createVisitor.id; granted.clear();
+  }
+  if (b.token && !granted.has(b.id)) {
+    const r = await fetch(`${conf.host}/api/boards/${b.id}/permissions/${b.token}/accesses`, { method:'POST',
+      headers: { 'Content-Type':'application/json', 'x-token': visitor }, body: JSON.stringify({ password:'' }) });
+    if (!r.ok) throw new Error('Zugang verweigert (HTTP ' + r.status + ')');
+  }
+  granted.add(b.id);
+}
+async function loadBoard(b, query) {
+  await grant(b, false);
+  let j = await gql(query, { id: b.id });
+  if (!j.data || !j.data.board) { await grant(b, true); j = await gql(query, { id: b.id }); }
+  if (!j.data || !j.data.board) throw new Error('Board nicht lesbar');
+  return j.data.board;
+}
+
+// ---------- Text-Helfer ----------
+function plainText(html) {
+  const d = document.createElement('div');
+  d.innerHTML = (html || '').replace(/<br\s*\/?>|<\/(div|p|li|h\d)>/gi, '\n$&');
+  d.querySelectorAll('script,style').forEach(x => x.remove());
+  return d.textContent.replace(/\n{3,}/g, '\n\n').trim();
+}
+const firstLine = t => plainText(t).split('\n').map(s => s.trim()).filter(Boolean)[0] || '';
+const isPlaceholder = t => /^\s*(?:(?:session|slot|raum|platzhalter|frei|offen|tbd|tba|n\.?\s?n\.?)\b)?[\s\d.,:#?!\-–—_]*$/i.test(t || '');
+
+// unscharfer Titelvergleich (z. B. Sessionplan ↔ Sessionvorschlag ↔ Doku)
+const STOP = new Set('und oder für mit der die das den dem des ein eine einer wie was wir uns von zum zur bei aus auf als ist sind ihr ihre the and for with how what our session sessions zeiten zeitalter'.split(' '));
+const toks = t => [...new Set((t || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '')
+  .replace(/[^a-z0-9äöüß]+/g, ' ').split(' ').filter(w => w.length >= 3 && !STOP.has(w)))];
+const same = (a, b) => a === b || (a.length >= 5 && b.length >= 5 && a.slice(0, 6) === b.slice(0, 6));
+function score(a, b) {
+  const A = toks(a), B = toks(b);
+  if (!A.length || !B.length) return 0;
+  const hits = A.filter(x => B.some(y => same(x, y))).length;
+  if (!hits) return 0;
+  if (Math.min(A.length, B.length) === 1 && !A.concat(B).some(w => w.length >= 5)) return 0;
+  return hits / Math.min(A.length, B.length);
+}
+// jede Quelle höchstens einmal zuordnen, beste Treffer zuerst
+function assign(sessions, items, key, getTitle) {
+  const pairs = [];
+  items.forEach(it => sessions.forEach(s => { const sc = score(getTitle(it), s.title); if (sc >= 0.5) pairs.push([sc, it, s]); }));
+  pairs.sort((a, b) => b[0] - a[0]);
+  const used = new Set();
+  pairs.forEach(([, it, s]) => { if (!s[key] && !used.has(it)) { s[key] = it; used.add(it); } });
+}
+
+// ---------- Sessionplan einlesen ----------
+const PLAN_Q = `query($id:String!){ board(id:$id){ name lists { id name position } cards { id title description color kanbanPosition { listId position } } } }`;
+const DOC_Q = `query($id:String!){ board(id:$id){ cards { id title } } }`;
+let plan = null, lastOk = null, loadError = '';
+
+async function load() {
+  const b = await loadBoard(conf.plan, PLAN_Q);
+  const inList = l => b.cards.filter(c => c.kanbanPosition && c.kanbanPosition.listId === l.id)
+                             .sort((x, y) => x.kanbanPosition.position - y.kanbanPosition.position);
+  const slotList = b.lists.find(l => /^zeitslot/i.test(l.name.trim()));
+  if (!slotList) throw new Error('Im Sessionplan fehlt die Spalte „Zeitslot“');
+  const slots = [];
+  inList(slotList).forEach(c => {
+    const txt = plainText(c.title) + ' ' + plainText(c.description);
+    const m = txt.match(/(\d{1,2})[:.](\d{2})\s*(?:uhr)?\s*[-–]\s*(\d{1,2})[:.](\d{2})/i);
+    if (m) slots.push({ start: +m[1] * 60 + +m[2], end: +m[3] * 60 + +m[4], color: (c.color || '').toLowerCase(),
+                        plus: /session\s*plus/i.test(txt), sessions: [] });
+  });
+  slots.sort((a, b) => a.start - b.start);
+  const proposals = [];
+  b.lists.sort((x, y) => x.position - y.position).forEach(l => {
+    const name = l.name.trim();
+    if (/^sessionvorschl/i.test(name)) { inList(l).forEach(c => proposals.push(c)); return; }
+    if (/^(hinweise|zeitslot|ideen)/i.test(name)) return;
+    inList(l).forEach((c, i) => {
+      const title = firstLine(c.title);
+      if (isPlaceholder(title)) return;
+      const slot = slots.find(s => s.color && s.color === (c.color || '').toLowerCase()) || slots[i];
+      if (slot) slot.sessions.push({ id: c.id, room: name, title, host: plainText(c.description).split('\n')[0].slice(0, 80), slot });
+    });
+  });
+  const all = slots.flatMap(s => s.sessions);
+  // ausführliche Beschreibung aus der Spalte „Sessionvorschläge“ übernehmen
+  assign(all, proposals.filter(p => firstLine(p.title)), 'proposal', p => firstLine(p.title));
+  all.forEach(s => { s.about = s.proposal ? plainText(s.proposal.description).slice(0, 1200) : ''; });
+  // optional: Doku-Board abgleichen
+  if (conf.doku) {
+    try {
+      const d = await loadBoard(conf.doku, DOC_Q);
+      assign(all, d.cards.filter(c => firstLine(c.title)), 'doc', c => firstLine(c.title));
+    } catch (e) { console.warn('Doku-Board:', e.message); }
+  }
+  plan = { name: b.name || '', slots: slots.filter(s => s.sessions.length) };
+  lastOk = new Date(); loadError = '';
+}
+
+// ---------- Mein Plan (nur lokal auf diesem Gerät) ----------
+const MINE_KEY = () => 'barcampPlan_' + (conf.plan ? conf.plan.id : 'x');
+let mine = new Set();
+function loadMine() { try { mine = new Set(JSON.parse(localStorage.getItem(MINE_KEY()) || '[]')); } catch (e) { mine = new Set(); } }
+function saveMine() { try { localStorage.setItem(MINE_KEY(), JSON.stringify([...mine])); } catch (e) {} updateBadge(); }
+function updateBadge() { const n = plan ? plan.slots.flatMap(s => s.sessions).filter(x => mine.has(x.id)).length : mine.size;
+  $('mineCount').hidden = !n; $('mineCount').textContent = n; }
+function toggleMine(id) {
+  if (mine.has(id)) { mine.delete(id); toast('Aus deinem Plan entfernt'); }
+  else {
+    mine.add(id);
+    const s = findSession(id);
+    const clash = s && s.slot.sessions.filter(x => x.id !== id && mine.has(x.id));
+    toast(clash && clash.length ? '⭐ Gemerkt – Achtung: gleiche Zeit wie „' + clash[0].title.slice(0, 28) + '…“' : '⭐ In deinem Plan gemerkt');
+  }
+  saveMine(); render();
+}
+const findSession = id => plan && plan.slots.flatMap(s => s.sessions).find(x => x.id === id);
+
+// ---------- Zustand eines Slots ----------
+function slotState(s, now) {
+  const end = s.end + (s.plus ? 15 : 0);
+  if (now >= end) return { cls:'done', label:'vorbei' };
+  if (now >= s.end) return { cls:'live', label:'Session Plus' };
+  if (now >= s.start) return { cls:'live', label:'läuft · noch ' + (s.end - now) + ' Min.' };
+  if (s.start - now <= 30) return { cls:'soon', label:'in ' + (s.start - now) + ' Min.' };
+  return { cls:'', label:'ab ' + fmt(s.start) };
+}
+
+// ---------- Darstellung ----------
+let tab = 'jetzt';
+const open = new Set();   // aufgeklappte Sessions
+
+function sessHTML(x) {
+  const isMine = mine.has(x.id), isOpen = open.has(x.id);
+  return `<div class="sess${isMine ? ' mine' : ''}${isOpen ? ' open' : ''}" data-id="${x.id}">
+    <div class="top" data-act="open">
+      <div class="txt">
+        <div class="room">📍 ${esc(x.room)}</div>
+        <div class="title">${esc(x.title)}</div>
+        ${x.host ? `<div class="host">${esc(x.host)}</div>` : ''}
+        ${x.doc ? `<a class="doc" href="${esc(docLink())}" target="_blank" rel="noopener">✅ Doku online</a>` : ''}
+        ${x.about ? '<div class="hint">ⓘ Tippen für Beschreibung</div>' : ''}
+      </div>
+      <button class="star" data-act="star" aria-pressed="${isMine}" aria-label="${isMine ? 'Aus meinem Plan entfernen' : 'Zu meinem Plan hinzufügen'}">${isMine ? '★' : '☆'}</button>
+    </div>
+    ${x.about ? `<div class="more">${esc(x.about)}</div>` : ''}
+  </div>`;
+}
+const docLink = () => conf.doku ? `${conf.host}/#/board/${conf.doku.id}?token=${conf.doku.token}` : '#';
+
+function viewJetzt(now) {
+  const slots = plan.slots;
+  const cur = slots.find(s => now >= s.start - 10 && now < s.end + (s.plus ? 15 : 0));
+  const nxt = slots.find(s => s.start - 10 > now);
+  let h = '';
+  if (cur) {
+    const st = slotState(cur, now);
+    const pct = Math.max(0, Math.min(100, (now - cur.start) / (cur.end - cur.start) * 100));
+    const my = cur.sessions.filter(x => mine.has(x.id));
+    h += `<div class="card hero"><span class="pill">${now < cur.start ? 'Gleich geht’s los' : now >= cur.end ? 'Läuft noch (Session Plus)' : 'Jetzt läuft'}</span>
+      <h2>${my.length ? '⭐ ' + esc(my[0].title) : fmt(cur.start) + '–' + fmt(cur.end) + ' Uhr'}</h2>
+      <div class="when">${my.length ? '📍 ' + esc(my[0].room) + ' · ' : ''}${fmt(cur.start)}–${fmt(cur.end)} Uhr</div>
+      <div class="rest">${st.label}${my.length > 1 ? ' · du hast ' + my.length + ' Sessions in diesem Slot gemerkt' : ''}</div>
+      ${now >= cur.start && now < cur.end ? `<div class="progress"><i style="width:${pct}%"></i></div>` : ''}</div>`;
+    h += `<div class="slothead"><h2>Alle Räume</h2><span class="chip ${st.cls}">${st.label}</span></div>`;
+    h += sorted(cur.sessions).map(sessHTML).join('');
+    if (nxt) h += `<div class="slothead"><h2>Danach · ${fmt(nxt.start)} Uhr</h2><span class="chip">${nxt.sessions.length} Sessions</span></div>` + sorted(nxt.sessions).map(sessHTML).join('');
+  } else if (nxt) {
+    const wait = nxt.start - now;
+    h += `<div class="card hero"><span class="pill">Als Nächstes</span><h2>${fmt(nxt.start)}–${fmt(nxt.end)} Uhr</h2>
+      <div class="rest">${wait > 90 ? 'Der nächste Slot beginnt um ' + fmt(nxt.start) + ' Uhr.' : 'Beginnt in ' + wait + ' Min. – Zeit für einen Kaffee ☕'}</div></div>`;
+    h += sorted(nxt.sessions).map(sessHTML).join('');
+  } else {
+    h += `<div class="card hero"><span class="pill">Danke!</span><h2>Alle Sessions sind vorbei</h2>
+      <div class="rest">Danke fürs Mitmachen beim Barcamp 💛 ${conf.doku ? 'Die Ergebnisse findest du in der <a href="' + esc(docLink()) + '" target="_blank" rel="noopener">Session-Dokumentation</a>.' : ''}</div></div>`;
+  }
+  return h;
+}
+// gemerkte Sessions zuerst
+const sorted = list => [...list].sort((a, b) => (mine.has(b.id) - mine.has(a.id)));
+
+function viewAlle(now) {
+  const q = $('search').value.trim().toLowerCase();
+  let h = '', hits = 0;
+  plan.slots.forEach(s => {
+    const list = s.sessions.filter(x => !q || (x.title + ' ' + x.room + ' ' + x.host + ' ' + x.about).toLowerCase().includes(q));
+    if (!list.length) return;
+    hits += list.length;
+    const st = slotState(s, now);
+    h += `<div class="slothead" id="slot-${s.start}"><h2>${fmt(s.start)}–${fmt(s.end)} Uhr</h2><span class="chip ${st.cls}">${st.label}</span></div>`;
+    h += list.map(sessHTML).join('');
+  });
+  if (!hits) h = `<div class="card muted">Keine Session gefunden${q ? ' für „' + esc(q) + '“' : ''}.</div>`;
+  return h;
+}
+
+function viewMein(now) {
+  const chosen = plan.slots.flatMap(s => s.sessions).filter(x => mine.has(x.id)).length;
+  let h = `<div class="card"><span class="pill">Mein Plan</span>
+    <p style="margin:10px 0 0">${chosen ? 'Du hast <b>' + chosen + '</b> Session' + (chosen > 1 ? 's' : '') + ' gemerkt.' : 'Noch leer – tippe in „Alle Sessions“ auf ☆, um Sessions zu merken.'}</p>
+    <p class="muted" style="font-size:13px;margin:6px 0 0">Dein Plan wird nur auf diesem Gerät gespeichert.</p></div><div class="tl">`;
+  plan.slots.forEach(s => {
+    const st = slotState(s, now);
+    const my = s.sessions.filter(x => mine.has(x.id));
+    h += `<div class="item ${st.cls === 'live' ? 'live' : st.cls === 'done' ? 'done' : ''}"><span class="dot"></span>
+      <div class="slothead"><h2>${fmt(s.start)}–${fmt(s.end)} Uhr</h2><span class="chip ${st.cls}">${st.label}</span></div>`;
+    if (my.length > 1) h += `<div class="warn">⚠️ ${my.length} Sessions zur gleichen Zeit – entscheide dich vor Ort 😉</div>`;
+    h += my.length ? my.map(sessHTML).join('')
+      : `<div class="empty">Noch nichts gewählt. <button data-act="goslot" data-slot="${s.start}">Session wählen</button></div>`;
+    h += '</div>';
+  });
+  h += `</div><div class="row">${chosen ? '<button class="btn" data-act="share">🔗 Plan teilen</button><button class="btn ghost" data-act="reset">Plan leeren</button>' : ''}</div>`;
+  return h;
+}
+
+function render() {
+  if (!plan) return;
+  const now = nowMin();
+  $('clock').textContent = fmt(now % 1440);
+  const y = window.scrollY;
+  $('view').innerHTML = ({ jetzt: viewJetzt, alle: viewAlle, mein: viewMein })[tab](now) + footerHTML();
+  window.scrollTo(0, y);
+  updateBadge();
+}
+function footerHTML() {
+  return `<footer>${loadError ? '⚠️ ' + esc(loadError) + '<br>' : ''}${lastOk ? 'Stand ' + lastOk.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }) + ' · aktualisiert sich automatisch' : ''}
+    ${conf.doku ? '<br><a href="' + esc(docLink()) + '" target="_blank" rel="noopener">📚 Zur Session-Dokumentation</a>' : ''}
+    ${conf.zeit ? '<br>🎬 Simulierte Uhrzeit (Demo)' : ''}</footer>`;
+}
+
+function setTab(t) {
+  tab = t;
+  document.body.className = 'tab-' + t;
+  document.querySelectorAll('nav button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
+  window.scrollTo(0, 0);
+  render();
+}
+
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2600); }
+
+// ---------- Bedienung ----------
+$('tabs').addEventListener('click', e => { const b = e.target.closest('button[data-tab]'); if (b) setTab(b.dataset.tab); });
+$('search').addEventListener('input', () => render());
+$('view').addEventListener('click', async e => {
+  const a = e.target.closest('[data-act]'); if (!a) return;
+  if (e.target.closest('a')) return;                       // Doku-Link normal öffnen
+  const card = a.closest('.sess'); const id = card && card.dataset.id;
+  const act = a.dataset.act;
+  if (act === 'star') { e.stopPropagation(); toggleMine(id); }
+  else if (act === 'open') { open.has(id) ? open.delete(id) : open.add(id); render(); }
+  else if (act === 'goslot') { setTab('alle'); const el = document.getElementById('slot-' + a.dataset.slot); if (el) el.scrollIntoView({ behavior:'smooth' }); }
+  else if (act === 'reset') { if (confirmInline(a)) { mine.clear(); saveMine(); render(); toast('Plan geleert'); } }
+  else if (act === 'share') {
+    const ids = plan.slots.flatMap(s => s.sessions).filter(x => mine.has(x.id)).map(x => x.id.slice(0, 8));
+    const p = new URLSearchParams(location.hash.slice(1)); p.set('mein', ids.join(','));
+    const link = location.href.split('#')[0] + '#' + p.toString();
+    try {
+      if (navigator.share) await navigator.share({ title: 'Mein Barcamp-Plan', url: link });
+      else { await navigator.clipboard.writeText(link); toast('🔗 Link kopiert'); }
+    } catch (err) { /* abgebrochen */ }
+  }
+});
+// „Plan leeren“ braucht einen zweiten Tipp (statt Bestätigungsdialog)
+function confirmInline(btn) {
+  if (btn.dataset.armed) return true;
+  btn.dataset.armed = '1'; btn.textContent = 'Wirklich leeren?';
+  setTimeout(() => { delete btn.dataset.armed; btn.textContent = 'Plan leeren'; }, 3000);
+  return false;
+}
+
+// geteilten Plan (#mein=…) übernehmen
+function importShared() {
+  if (!conf.mein || !plan) return;
+  const pre = conf.mein.split(',').filter(Boolean);
+  let n = 0;
+  plan.slots.flatMap(s => s.sessions).forEach(x => { if (pre.includes(x.id.slice(0, 8)) && !mine.has(x.id)) { mine.add(x.id); n++; } });
+  saveMine();
+  const p = new URLSearchParams(location.hash.slice(1)); p.delete('mein');
+  history.replaceState(null, '', location.href.split('#')[0] + '#' + p.toString());
+  conf.mein = null;
+  if (n) { toast(`⭐ ${n} Session${n > 1 ? 's' : ''} aus dem geteilten Plan übernommen`); setTab('mein'); }
+}
+
+// ---------- Einrichtung für die Orga (ohne #plan=…) ----------
+function parseShare(link) {
+  const m = (link || '').match(/^(https?:\/\/[^\/#?]+).*?board\/([0-9a-f-]{36})/i);
+  if (!m) return null;
+  const t = link.match(/[?&]token=([^&#]+)/i);
+  return { host: m[1].replace(/^https?:\/\//, ''), id: m[2], token: t ? t[1] : '' };
+}
+function showSetup() {
+  $('appTitle').textContent = 'Einrichtung';
+  $('tabs').hidden = true;
+  $('view').innerHTML = `<div class="card" id="setup"><span class="pill">Für die Orga</span>
+    <h2 style="color:var(--red);margin:10px 0 4px">Mobilen Sessionplan einrichten</h2>
+    <p class="muted" style="margin:0">Teilen-Links der TaskCards-Boards einfügen (mit <code>?token=…</code>). Daraus entsteht ein Link mit QR-Code für die Teilnehmenden.</p>
+    <label for="sPlan">Sessionplan (Pflicht)</label><input id="sPlan" placeholder="https://hb.taskcards.app/#/board/…?token=…">
+    <label for="sDoku">Session-Dokumentation (optional)</label><input id="sDoku" placeholder="https://hb.taskcards.app/#/board/…?token=…">
+    <div class="row"><button class="btn" id="sMake">Link erzeugen</button></div>
+    <div id="sOut"></div></div>`;
+  $('sMake').onclick = () => {
+    const p = parseShare($('sPlan').value), d = parseShare($('sDoku').value);
+    if (!p) { $('sOut').innerHTML = '<div class="warn">Bitte den Teilen-Link des Sessionplans einfügen.</div>'; return; }
+    const hp = new URLSearchParams();
+    hp.set('plan', p.id + '.' + p.token);
+    if (d) hp.set('doku', d.id + '.' + d.token);
+    if (p.host !== 'hb.taskcards.app') hp.set('host', p.host);
+    const link = location.href.split('#')[0] + '#' + hp.toString();
+    let qr = '';
+    if (typeof qrcode === 'function') {
+      const q = qrcode(0, 'M'); q.addData(link); q.make();
+      const n = q.getModuleCount(); let path = '';
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) path += `M${c},${r}h1v1h-1z`;
+      qr = `<div class="qr"><svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges"><rect width="${n}" height="${n}" fill="#fff"/><path d="${path}"/></svg></div>`;
+    }
+    $('sOut').innerHTML = `${qr}<p id="shareLink"></p><div class="row"><a class="btn" id="sOpen">Ansicht öffnen</a><button class="btn ghost" id="sCopy">Link kopieren</button></div>
+      <p class="muted" style="font-size:13px">Tipp: Den QR-Code ausdrucken oder in der Diashow beim Feld „QR-Code ‚Ganzer Sessionplan‘“ diesen Link eintragen.</p>`;
+    $('shareLink').textContent = link;
+    $('sOpen').href = link;   // Wechsel der Adresse lädt die Ansicht neu (hashchange)
+    $('sCopy').onclick = async () => { try { await navigator.clipboard.writeText(link); toast('🔗 Link kopiert'); } catch (e) { toast('Bitte Link manuell kopieren'); } };
+  };
+}
+
+// ---------- Start ----------
+async function refresh(first) {
+  try { await load(); if (first) { loadMine(); importShared(); } }
+  catch (e) { loadError = 'Sessionplan konnte nicht geladen werden: ' + e.message; if (first && !plan) $('view').innerHTML = `<div class="card warn">${esc(loadError)}</div>`; }
+  render();
+}
+async function start() {
+  if (!conf.plan) return showSetup();
+  if (conf.zeit) document.body.parentElement.classList.add('demo');
+  $('view').innerHTML = '<div class="card muted">Lade Sessionplan …</div>';
+  document.body.className = 'tab-jetzt';
+  await refresh(true);
+  setInterval(() => refresh(false), 60000);     // Plan jede Minute neu laden
+  setInterval(render, 20000);                   // Restzeiten aktualisieren
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(false); });
+}
+window.addEventListener('hashchange', () => location.reload());
+start();
+</script>
+</body>
+</html>

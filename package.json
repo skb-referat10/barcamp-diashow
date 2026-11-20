@@ -1,0 +1,12 @@
+{
+  "name": "barcamp-diashow",
+  "version": "1.0.0",
+  "description": "Live-Diashow für das Bremer BildungsBarcamp: zeigt Session-Dokumentation und Sessionplan aus TaskCards auf dem Beamer.",
+  "private": true,
+  "scripts": {
+    "test": "node tests/diashow.test.js && node tests/plan.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  }
+}
