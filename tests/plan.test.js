@@ -85,32 +85,40 @@ function open(hash) {
   w4.document.getElementById('sMake').click(); await sleep(10);
   check('Einrichtung erzeugt Teilnehmenden-Link', w4.document.getElementById('shareLink').textContent.endsWith(`#plan=${PLAN_ID}.abc`), w4.document.getElementById('shareLink').textContent);
 
-  // ---------- Session-Uhr für Sessiongeber:Innen ----------
+  // ---------- Session-Uhr (für alle, je Zeitslot) ----------
   {
     const u = open(`#plan=${PLAN_ID}.t1&doku=${DOC_ID}.t2&zeit=12:20`); await sleep(150);
     const ud = u.document, q = x => ud.querySelector(x);
     q('.hero .uhrbtn').click(); await sleep(20);
-    check('Uhr: öffnet aus „Jetzt“ als Vollbild', !q('#uhr').hidden && /uhr=s/.test(u.location.hash), u.location.hash);
-    check('Uhr: 12:20 im Slot bis 12:30 → „Session läuft“, rund 10 Min.', q('#uhr .upill').textContent === 'Session läuft' && /^(10:00|9:5\d)$/.test(q('#uBig').textContent), q('#uBig').textContent);
-    check('Uhr: Mitte der Session zeigt Moderationstipps', /Alle kommen zu Wort/.test(q('#uhr .utip').textContent));
-    check('Uhr: Zeitleiste Start, Ende, Plus', /Start 11:45.*Ende 12:30/.test(q('#uhr .uline').textContent), q('#uhr .uline').textContent);
+    check('Uhr: öffnet aus „Jetzt“ als Vollbild', !q('#uhr').hidden && /uhr=1/.test(u.location.hash), u.location.hash);
+    check('Uhr: zeigt den Slot, nicht eine einzelne Session', /Slot 11:45–12:30/.test(q('#uhr .utitle').textContent), q('#uhr .utitle').textContent);
+    check('Uhr: 12:20 → „Session läuft“, rund 10 Min.', q('#uhr .upill').textContent === 'Session läuft' && /^(10:00|9:5\d)$/.test(q('#uBig').textContent), q('#uBig').textContent);
+    check('Uhr: mitten in der Session keine Tipps', !q('#uhr .utip'));
+    check('Uhr: Zeitleiste Start, Ende, Plus', /Start 11:45.*Ende 12:30.*Plus bis 12:45/.test(q('#uhr .uline').textContent), q('#uhr .uline').textContent);
     q('#uhr .uclose').click(); await sleep(10);
     check('Uhr: ✕ schließt und räumt die Adresse auf', q('#uhr').hidden && !/uhr=/.test(u.location.hash));
-    // aufgeklappte Session → Uhr für genau diese Session
-    const card = [...ud.querySelectorAll('.sess')][0]; card.querySelector('.top').click(); await sleep(10);
-    ud.querySelector('.sess.open .uhrbtn').click(); await sleep(20);
-    check('Uhr: aus der Session geöffnet zeigt Raum und Titel', q('#uhr .utitle').textContent === card.querySelector('.title').textContent);
+    check('Kein Uhr-Knopf mehr in den einzelnen Sessions', !ud.querySelector('.sess .uhrbtn'));
   }
   {
     const u = open(`#plan=${PLAN_ID}.t1&doku=${DOC_ID}.t2&zeit=11:40&uhr=1`); await sleep(150);
     const q = x => u.document.querySelector(x);
-    check('Uhr: per Adresse #uhr=1 direkt offen, vor dem Start Countdown 5:00', !q('#uhr').hidden && /^(5:00|4:5\d)$/.test(q('#uBig').textContent), q('#uBig').textContent);
-    check('Uhr: vor dem Start Hinweis „Doku ab Minute 1“ mit Doku-Link', /Doku ab Minute 1/.test(q('#uhr .utip').textContent) && !!q('#uhr .utip a.btn'));
+    check('Uhr: per #uhr=1 direkt offen, vor dem Start Countdown 5:00', !q('#uhr').hidden && /^(5:00|4:5\d)$/.test(q('#uBig').textContent), q('#uBig').textContent);
+    check('Uhr: vor dem Start Doku-Tipp mit Link', /Wer dokumentiert/.test(q('#uhr .utip').textContent) && !!q('#uhr .utip a.btn'));
   }
   {
     const u = open(`#plan=${PLAN_ID}.t1&doku=${DOC_ID}.t2&zeit=11:47&uhr=1`); await sleep(150);
     const q = x => u.document.querySelector(x);
-    check('Uhr: in den ersten 5 Minuten Doku-Hinweis hervorgehoben', q('#uhr').classList.contains('urgent') && /Wer dokumentiert/.test(q('#uhr .utip').textContent));
+    check('Uhr: erste 5 Minuten Doku-Hinweis hervorgehoben', q('#uhr').classList.contains('urgent') && /Doku nicht vergessen/.test(q('#uhr .utip').textContent));
+  }
+  {
+    const u = open(`#plan=${PLAN_ID}.t1&doku=${DOC_ID}.t2&zeit=12:27&uhr=1`); await sleep(150);
+    const q = x => u.document.querySelector(x);
+    check('Uhr: letzte 5 Minuten Hinweis zum Abschluss', /Gleich ist Schluss/.test(q('#uhr .utip').textContent));
+  }
+  {
+    const u = open(`#plan=${PLAN_ID}.t1&doku=${DOC_ID}.t2&zeit=11:29&uhr=1`); await sleep(150);
+    const q = x => u.document.querySelector(x);
+    check('Uhr: ohne festen Slot zeigt sie den laufenden (hier Session Plus)', q('#uhr .upill').textContent === 'Session Plus' && /10:30/.test(q('#uhr .utitle').textContent), q('#uhr .utitle').textContent);
   }
 
   console.log(fails ? `\n${fails} Test(s) fehlgeschlagen` : '\nAlle Tests der mobilen Ansicht bestanden');

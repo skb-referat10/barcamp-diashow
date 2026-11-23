@@ -1,8 +1,30 @@
-# 🎞️ Barcamp-Diashow
+# Barcamp-Diashow
 
-Live-Diashow für das **Bremer BildungsBarcamp**. Die Seite zeigt die Session-Dokumentation und den Sessionplan aus [TaskCards](https://www.taskcards.de) automatisch auf dem Beamer. Neue Karten lädt sie regelmäßig nach. Sie besteht aus einer einzigen HTML-Datei, man muss nichts installieren und braucht keinen Server.
+Werkzeugkasten für den Veranstaltungstag des **Bremer BildungsBarcamps**: eine Live-Diashow für den Beamer, Ansichten für Zeitplan und Sessionplanung und ein Sessionplan fürs Handy. Alles liest seine Inhalte direkt aus den [TaskCards](https://www.taskcards.de)-Pinnwänden, die das Orga-Team ohnehin pflegt. Man muss nichts installieren und braucht keinen Server, die Seiten laufen über GitHub Pages im Browser.
 
 Entstanden am Barcamp-Tag #3B12 (19.11.2026), gepflegt vom Team digitale Schulentwicklung, Referat 10 (Senator für Kinder und Bildung Bremen).
+
+## Die Idee
+
+Bei einem Barcamp entsteht das Programm erst am Tag selbst. Morgens stellen Teilgebende ihre Ideen in 30 Sekunden vor, daraus wächst auf einer TaskCards-Pinnwand der Sessionplan. Während der Sessions füllt sich eine zweite Pinnwand mit der Dokumentation: Notizen, Fotos, Links, Präsentationen.
+
+Beides war bisher nur sichtbar, wenn man die Pinnwand gezielt öffnet. Dieses Projekt holt die Inhalte dorthin, wo die Menschen gerade sind, **ohne dass jemand doppelt pflegen muss**. TaskCards bleibt die einzige Quelle. Was dort steht, erscheint automatisch auf dem Beamer und auf dem Handy.
+
+Der Tag aus Sicht der Werkzeuge:
+
+1. **Ankommen und Begrüßung:** Der Beamer zeigt den **Zeitplan** des Tages mit dem, was gerade dran ist.
+2. **Sessionplanung:** Die Ansicht **Sessionplanung** begleitet die Vorstellungsrunde mit einem 30-Sekunden-Timer und zeigt live, wie sich das Raster aus Räumen und Zeitslots füllt. Danach erscheint groß der QR-Code zum Sessionplan fürs Handy.
+3. **Während der Sessions:** Die **Diashow** läuft in Pausen und im Foyer. Sie zeigt, was gerade in welchem Raum läuft, und spielt die neuen Doku-Karten aus. So sieht man schon während des Tages, was in anderen Sessions passiert, und die Dokumentation bekommt Wertschätzung.
+4. **Auf dem Handy:** Der **mobile Sessionplan** zeigt alle Räume, man kann sich einen eigenen Plan merken und kommt mit einem Tipp zur Doku. Die **Session-Uhr** hat den Zeitrahmen des Slots im Blick, für Sessiongeber:Innen genauso wie für Teilgebende, und erinnert am Anfang an die Dokumentation.
+5. **Danach:** Mit dem **Demomodus** lässt sich der ganze Tag mit echten Inhalten im Zeitraffer noch einmal abspielen, z. B. für alle, die nicht dabei sein konnten.
+
+Ein paar Grundsätze, die sich durch alles ziehen:
+
+- **Eine Quelle, keine Doppelpflege:** Räume, Slots, Uhrzeiten und Sessions kommen bei jedem Laden neu aus TaskCards. Ein neues Barcamp braucht nur neue Teilen-Links.
+- **Doku sichtbar machen:** Welche Sessions schon dokumentiert sind, zeigen Diashow und Handy-Plan an. Die Session-Uhr erinnert zu Beginn daran, jemanden zum Mitschreiben zu finden.
+- **Datensparsam:** kein Login, kein eigener Server, keine Tracker. Merklisten bleiben auf dem eigenen Gerät, Schriften kommen von einem EU-Anbieter.
+- **Im Corporate Design:** Alle Ansichten folgen dem Designhandbuch des Bremer BildungsBarcamps.
+- **Offen für andere:** Der Code steht unter MIT-Lizenz und lässt sich für andere Barcamps mit TaskCards nutzen.
 
 ## Was die Diashow kann
 
@@ -92,7 +114,7 @@ Eine zweite, für Handy und iPad gemachte Ansicht nur mit dem Sessionplan. Sie h
 - **Alle Sessions:** alle Slots mit Suche. Ein Tipp auf ☆ merkt eine Session. Ein Tipp auf die Session klappt die Beschreibung aus der Spalte „Sessionvorschläge“ auf, die automatisch zugeordnet wird. „✓ Doku online“ erscheint, sobald es eine Dokumentation gibt.
 - **Mein Plan:** die gemerkten Sessions als Timeline, mit Hinweis bei zwei Sessions zur gleichen Zeit. Über „Plan teilen“ geht der Plan per Link an andere.
 
-- **Session-Uhr für Sessiongeber:Innen:** über den Knopf im Bereich „Jetzt“ oder in einer aufgeklappten Session („Ich gebe diese Session“). Zeigt groß den Countdown bis zum Start, die Restzeit bis zum Ende und die Session Plus, dazu eine Zeitleiste und passend zur Phase die Tipps vom Plakat „10 Tipps für deine gute Session“. Vor dem Start und in den ersten 5 Minuten wird „Doku ab Minute 1“ hervorgehoben, mit Knopf zur Dokumentation. Der Bildschirm bleibt an, solange die Uhr offen ist. Direkt aufrufbar mit `&uhr=1` am Ende des Links.
+- **Session-Uhr:** über den Knopf „Session-Uhr öffnen“ im Bereich „Jetzt“, für Sessiongeber:Innen und Teilgebende gleichermaßen. Sie gehört zum Zeitslot, nicht zu einer einzelnen Session, und zeigt groß den Countdown bis zum Start, die Restzeit bis zum Ende und die Session Plus, dazu eine Zeitleiste. Hinweise gibt es bewusst nur wenige: vor dem Start und in den ersten 5 Minuten zur Dokumentation (mit Knopf zur Doku), kurz vor Schluss zum gemeinsamen Abschluss. Nach dem Slot springt die Uhr von selbst zum nächsten. Der Bildschirm bleibt an, solange sie offen ist. Direkt aufrufbar mit `&uhr=1` am Ende des Links, z. B. als QR-Code auf den Raumschildern.
 
 Der persönliche Plan wird **nur auf dem eigenen Gerät** gespeichert, ohne Login und Server. Die Ansicht lädt jede Minute neu und lässt sich über „Zum Home-Bildschirm“ wie eine App ablegen.
 
