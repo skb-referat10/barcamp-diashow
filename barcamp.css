@@ -30,7 +30,7 @@ body.idle { cursor:none; }
 h1.big { color:var(--red); font-weight:800; margin:.6vh 0 0; line-height:1.1; }
 
 /* Navigation zwischen den Ansichten (bei Mausbewegung sichtbar) */
-#bcNav { position:fixed; left:50%; bottom:1.2vh; transform:translateX(-50%); z-index:20; display:flex; gap:6px; background:rgba(0,0,0,.85);
+#bcNav { position:fixed; left:50%; top:1.2vh; transform:translateX(-50%); z-index:20; display:flex; gap:6px; background:rgba(0,0,0,.85);
   padding:6px; border-radius:999px; opacity:0; pointer-events:none; transition:opacity .3s; }
 body.mouse #bcNav { opacity:1; pointer-events:auto; }
 #bcNav a, #bcNav button { color:#fff; text-decoration:none; font:700 14px "Noto Sans", Arial, sans-serif; padding:7px 14px; border-radius:999px; border:0; background:none; cursor:pointer; white-space:nowrap; }
