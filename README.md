@@ -32,7 +32,7 @@ Die Seiten laufen direkt über GitHub Pages, man muss nichts herunterladen:
 4. **Mobilen Sessionplan einrichten.** `plan.html` ohne Zusatz öffnen, beide Teilen-Links einfügen und auf „Link erzeugen“ tippen. Den QR-Code auf Plakate oder Folien bringen.
 5. **Diashow einrichten.** Auf dem Beamer-Rechner die Diashow öffnen und im Startdialog eintragen:
    - Doku-Link, Sessionplan-Link und **Hashtag** der neuen Ausgabe
-   - beim QR-Code „Ganzer Sessionplan“ den Link aus Schritt 4
+   - beim Handy-Link optional einen Kurzlink auf den Link aus Schritt 4. Leer lassen geht auch, dann baut die Diashow den Link selbst aus beiden Teilen-Links
    - optional Social Wall und Fotos, dazu Bildnachweis (z. B. „Foto: Vorname Nachname“) und ob Fotos schwarz-weiß gezeigt werden (Standard: an)
 6. **Generalprobe im Demomodus.** Im Startdialog „Demomodus“ anhaken, Startzeit vor dem ersten Slot wählen, Zeitraffer z. B. 10. Dann einmal durchlaufen lassen: Stimmen Räume, Slots und Farben? Beim mobilen Plan geht das mit `&zeit=10:20` am Ende des Links.
 
@@ -64,10 +64,11 @@ Zeigt den Tagesablauf als Timeline. Die Diashow liest ihn aus der Karte **„Zei
 
 ### 🎤 Sessionplanung mit Vorstellungs-Timer
 
-- **30-Sekunden-Timer** als großer Ring. Ab 10 Sekunden wird er gelb, ab 5 Sekunden rot, bei 0 blinkt die Fläche rot.
+- **30-Sekunden-Timer** als großer Ring. Ab 10 Sekunden wird er hellrot, ab 5 Sekunden rot, bei 0 wird die Fläche rot.
 - **Leertaste** (oder Klick auf den Ring) startet sofort die **nächste Vorstellung**, beliebig oft. Ein Zähler zeigt „Vorstellung #12“.
-- **Ton wählbar** (Taste **T** oder „🎵 Ton wählen“, mit ▶ Probe): Horn (Stadion), Schiffshorn, Pfiff, Buzzer, sanftes Ding, Kuckuck, Schulgong oder kein Ton. Dazu Ticken in den letzten 3 Sekunden (leise, deutlich, aus) und Lautstärke. Die Auswahl wird gemerkt.
+- **Ton wählbar** (Taste **T** oder „Ton wählen“, mit ▶ Probe): Horn (Stadion), Schiffshorn, Pfiff, Buzzer, sanftes Ding, Kuckuck, Schulgong oder kein Ton. Dazu Ticken in den letzten 3 Sekunden (leise, deutlich, aus) und Lautstärke. Die Auswahl wird gemerkt.
 - Daneben das **Live-Raster** aus Räumen und Zeitslots. Es wird alle 10 Sekunden aktualisiert und hebt neue Einträge hervor: „17 von 24 Plätzen belegt“.
+- **QR-Code statt Timer** (Taste **Q** oder Knopf „QR-Code“): Nach der Planung zeigt die linke Fläche groß den QR-Code zum mobilen Sessionplan. Leertaste oder „Zurück zum Timer“ wechselt zurück.
 
 | Taste | Funktion |
 |---|---|
@@ -77,6 +78,7 @@ Zeigt den Tagesablauf als Timeline. Die Diashow liest ihn aus der Karte **„Zei
 | M | Ton an/aus |
 | T | Tonauswahl (Endsignal, Ticken, Lautstärke) |
 | G | Raster aus-/einblenden (nur Timer, extra groß) |
+| Q | QR-Code zum Sessionplan fürs Handy statt Timer |
 | 0 | Zähler zurücksetzen |
 | Esc | Timer anhalten |
 
@@ -87,14 +89,14 @@ Zeigt den Tagesablauf als Timeline. Die Diashow liest ihn aus der Karte **„Zei
 Eine zweite, für Handy und iPad gemachte Ansicht nur mit dem Sessionplan. Sie hat drei Reiter:
 
 - **Jetzt:** Was läuft gerade wo, mit Restzeit und Fortschrittsbalken, darunter der nächste Slot. Ist im laufenden Slot eine eigene Session gemerkt, steht sie ganz oben.
-- **Alle Sessions:** alle Slots mit Suche. Ein Tipp auf ☆ merkt eine Session. Ein Tipp auf die Session klappt die Beschreibung aus der Spalte „Sessionvorschläge“ auf, die automatisch zugeordnet wird. „✅ Doku online“ erscheint, sobald es eine Dokumentation gibt.
+- **Alle Sessions:** alle Slots mit Suche. Ein Tipp auf ☆ merkt eine Session. Ein Tipp auf die Session klappt die Beschreibung aus der Spalte „Sessionvorschläge“ auf, die automatisch zugeordnet wird. „✓ Doku online“ erscheint, sobald es eine Dokumentation gibt.
 - **Mein Plan:** die gemerkten Sessions als Timeline, mit Hinweis bei zwei Sessions zur gleichen Zeit. Über „Plan teilen“ geht der Plan per Link an andere.
 
 Der persönliche Plan wird **nur auf dem eigenen Gerät** gespeichert, ohne Login und Server. Die Ansicht lädt jede Minute neu und lässt sich über „Zum Home-Bildschirm“ wie eine App ablegen.
 
 **Einrichtung durch die Orga:** `plan.html` ohne Zusatz öffnen, die Teilen-Links von Sessionplan und optional Doku-Board einfügen und auf „Link erzeugen“ tippen. Heraus kommen ein Link und ein QR-Code für die Teilnehmenden, z. B.
 `…/plan.html#plan=<BoardID>.<Token>&doku=<BoardID>.<Token>`.
-Den Link kann man auch in der Diashow beim QR-Code „Ganzer Sessionplan“ eintragen.
+Unten gibt es den Reiter **Doku**, der direkt die Session-Dokumentation öffnet. Die Diashow erzeugt diesen Link auch selbst und zeigt ihn als QR-Code rechts unten („Sessionplan & Doku“), auf der Folie „Jetzt läuft“ und in der Sessionplanung. In den Einstellungen lässt sich rechts unten stattdessen wieder „Alle Ergebnisse“ (Doku-Board) wählen.
 
 Zum Ausprobieren lässt sich mit `&zeit=10:20` eine Uhrzeit simulieren.
 

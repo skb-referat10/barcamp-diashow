@@ -265,8 +265,10 @@
       <div><label for="inHide">Karten ausblenden, Titel enthält …</label><input id="inHide" value="Anleitung"></div>
       <div><label for="inPdf">PDF-Seiten pro Datei (0 = aus)</label><input id="inPdf" type="number" min="0" max="12" value="4"></div>
     </div>
-    <label for="inDoc">QR-Code „Alle Ergebnisse“ führt zu … (leer = TaskCards-Link von oben)</label>
-    <input id="inDoc" placeholder="leer lassen oder eigene Adresse">
+    <div class="row">
+      <div><label for="inRailQr">QR-Code rechts unten zeigt …</label><select id="inRailQr"><option value="plan">Sessionplan fürs Handy (mit Doku-Link)</option><option value="doc">Alle Ergebnisse (Doku-Board)</option></select></div>
+      <div><label for="inDoc">„Alle Ergebnisse“ führt zu … (leer = TaskCards-Link von oben)</label><input id="inDoc" placeholder="leer lassen oder eigene Adresse"></div>
+    </div>
     <div class="row">
       <div><label for="inTag">Hashtag</label><input id="inTag" value="" placeholder="z. B. #3B12"></div>
       <div><label for="inInsta">Instagram-Kanal (für QR-Code „Folgt uns“)</label><input id="inInsta" value="https://www.instagram.com/bremerbildungsbarcamp/"></div>
@@ -275,8 +277,9 @@
     <p style="margin:0">TaskCards-Board mit Spalten = Räume und einer Spalte „Zeitslot“. Daraus entstehen die Folie „Jetzt läuft“ und das Laufband unten.</p>
     <label for="inPlan">Teilen-Link des Sessionplans</label>
     <input id="inPlan" placeholder="https://hb.taskcards.app/#/board/…?token=…">
-    <label for="inPlanQr">QR-Code „Ganzer Sessionplan“ führt zu … (leer = Sessionplan-Link von oben)</label>
-    <input id="inPlanQr" placeholder="leer lassen oder Kurzlink eintragen">
+    <label for="inPlanQr">Link zum Sessionplan fürs Handy (leer = wird aus beiden TaskCards-Links erzeugt)</label>
+    <input id="inPlanQr" placeholder="leer lassen oder Kurzlink eintragen, z. B. goto.schule.bremen.de/…">
+    <p class="hint" style="margin:4px 0 0;font-size:13px">Tipp: Ein Kurzlink macht den QR-Code gröber und besser lesbar. Der erzeugte Link enthält beide Teilen-Links.</p>
     <h2 style="font-size:18px;margin:26px 0 4px">Social Wall & Fotos (optional)</h2>
     <p style="margin:0">Zwischen die TaskCards-Karten können eine Social Wall (z. B. Walls.io, Anzeige-Link) und eigene Fotos eingestreut werden.</p>
     <label for="inWall">Adresse der Social Wall (Anzeige-/Embed-Link)</label>
@@ -350,7 +353,7 @@
 <script>
 // Versionskennung: hängt an den Adressen der anderen Ansichten, damit der Browser nach einem Update
 // keine veralteten Dateien aus dem Zwischenspeicher nimmt (bei Änderungen hochzählen)
-const BUILD = '2026-11-23b';
+const BUILD = '2026-11-23c';
 
 // Wird die Diashow versehentlich innerhalb einer Ebene geöffnet: stattdessen die äußere Diashow zeigen
 if (window.parent !== window) {
@@ -363,7 +366,7 @@ const LS_KEY = 'barcampDiashow';
 let cfg = { url:'', slideSec:15, imgSec:6, refreshMin:2, cloudChars:350, hide:'Anleitung', doc:'', pdfPages:4,
   mark:'done', overview:true, demo:false, demoStart:'10:15', demoSpeed:10, collageSec:24, swapSec:2.5, credit:'', bw:true,
   tag:'', insta:'https://www.instagram.com/bremerbildungsbarcamp/', wall:'', every:3, wallSec:30,
-  plan:'' };
+  plan:'', railQr:'plan' };
 // Kurzlink zur Session-Dokumentation (steht so auch im Sessionplan)
 const DOC_DEFAULT = 'https://goto.schule.bremen.de/sessiondoku';
 let photos = [];          // eigene Fotos (nur im Speicher dieses Browsers, werden nirgendwohin hochgeladen)
@@ -384,7 +387,7 @@ if (/instagram\.com\/bildungsbarcamp\/?$/i.test(cfg.insta)) cfg.insta = 'https:/
 const $ = id => document.getElementById(id);
 const FIELDS = { inUrl:'url', inSlide:'slideSec', inImg:'imgSec', inRefresh:'refreshMin', inCloud:'cloudChars', inHide:'hide', inDoc:'doc', inPdf:'pdfPages',
   inTag:'tag', inInsta:'insta', inWall:'wall', inEvery:'every', inWallSec:'wallSec', inPlan:'plan', inPlanQr:'planQr',
-  inMark:'mark', inDemoStart:'demoStart', inDemoSpeed:'demoSpeed', inCollageSec:'collageSec', inSwap:'swapSec', inCredit:'credit' };
+  inMark:'mark', inDemoStart:'demoStart', inDemoSpeed:'demoSpeed', inCollageSec:'collageSec', inSwap:'swapSec', inCredit:'credit', inRailQr:'railQr' };
 // Häkchen-Felder (werden über .checked statt .value gelesen)
 const CHECKS = { inOverview:'overview', inDemo:'demo', inBw:'bw' };
 Object.entries(FIELDS).forEach(([id, k]) => $(id).value = cfg[k]);
@@ -396,6 +399,20 @@ function parseLink(link) {
   if (!m) return null;
   const t = link.match(/[?&]token=([^&#]+)/i);
   return { host: m[1], id: m[2], token: t ? decodeURIComponent(t[1]) : '' };
+}
+
+// ---------- Link zum mobilen Sessionplan (plan.html) ----------
+// Eingetragener Kurzlink hat Vorrang, sonst wird der Link aus Sessionplan- und Doku-Link gebaut
+function mobileLink() {
+  if (cfg.planQr) return cfg.planQr;
+  const p = parseLink(cfg.plan || ''); if (!p) return '';
+  const hp = new URLSearchParams();
+  hp.set('plan', p.id + '.' + p.token);
+  const d = parseLink(cfg.url || '');
+  if (d && d.id !== p.id) hp.set('doku', d.id + '.' + d.token);
+  if (!/hb\.taskcards\.app$/.test(p.host)) hp.set('host', p.host.replace(/^https?:\/\//, ''));
+  const base = location.protocol === 'file:' ? 'https://skb-referat10.github.io/barcamp-diashow/' : location.href.split(/[?#]/)[0].replace(/[^\/]*$/, '');
+  return base + 'plan.html#' + hp.toString();
 }
 
 // ---------- QR-Code als SVG ----------
@@ -898,7 +915,7 @@ function buildSlide(c) {
 
   if (kind === 'link') content.appendChild(qrBlock(c._links[0], 'linkqr'));
   else if (kind === 'cloud') {
-    content.innerHTML = '<div class="cloud"></div><div class="cloud-hint">Ganze Doku lesen → QR-Code „Alle Ergebnisse“</div>';
+    content.innerHTML = '<div class="cloud"></div><div class="cloud-hint">Ganze Doku lesen → QR-Code rechts unten</div>';
   } else if (kind === 'text') {
     content.innerHTML = `<div class="text">${sanitize(c._body)}</div>`;
   }
@@ -1122,7 +1139,7 @@ function buildNowSlide() {
   });
   if (info.next && info.mode !== 'next') el.querySelector('.nowfoot').textContent = `Danach: nächster Slot ab ${fmtMin(info.next.start)} Uhr`;
   // QR-Code zum kompletten Sessionplan als letzte Kachel
-  const planLink = cfg.planQr || cfg.plan;
+  const planLink = mobileLink() || cfg.plan;
   const svg = planLink ? qrSvg(planLink) : '';
   if (svg) {
     const q = document.createElement('div'); q.className = 'room planqr';
@@ -1357,7 +1374,9 @@ async function start() {
   visitorId = ''; // beim (Neu-)Start frisch freischalten, falls ein anderer Link eingegeben wurde
   try { localStorage.setItem(LS_KEY, JSON.stringify(cfg)); } catch (e) {}
   // Doku-QR-Code in der rechten Leiste
-  const docUrl = cfg.doc || cfg.url;
+  const mob = cfg.railQr !== 'doc' ? mobileLink() : '';
+  const docUrl = mob || cfg.doc || cfg.url;
+  $('docQr').querySelector('.lbl').textContent = mob ? 'Sessionplan & Doku' : 'Alle Ergebnisse';
   $('docQr').querySelector('.qr').innerHTML = qrSvg(docUrl) || '<div style="color:#000;padding:8px;font-size:12px;word-break:break-all"></div>';
   if (!qrSvg(docUrl)) $('docQr').querySelector('.qr div').textContent = docUrl;
   $('setupErr').textContent = 'Lade …';
@@ -1450,7 +1469,7 @@ function viewLink(file) {
   const p = parseLink(cfg.plan || '');
   if (p) { hp.set('plan', p.id + '.' + p.token); if (!/hb\.taskcards\.app$/.test(p.host)) hp.set('host', p.host.replace(/^https?:\/\//, '')); }
   if (cfg.tag) hp.set('tag', cfg.tag);
-  if (cfg.planQr) hp.set('qr', cfg.planQr);
+  if (mobileLink()) hp.set('qr', mobileLink());
   if (cfg.demo) hp.set('zeit', fmtMin(nowMin()));
   return base + file + '?v=' + BUILD + (hp.toString() ? '#' + hp.toString() : '');
 }

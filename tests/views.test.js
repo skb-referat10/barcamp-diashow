@@ -72,7 +72,7 @@ const txt = w => w.document.body.textContent.replace(/\s+/g, ' ');
   // ---------- Sessionplanung ----------
   w = open('sessionplanung.html', `#plan=${PLAN_ID}.t`);
   await sleep(200);
-  const ev = s => w.eval(s), d = w.document;
+  const ev = s => w.eval(s); let d = w.document;
   check('Raster: 19 von 24 Plätzen belegt', /19 von 24 Plätzen belegt/.test(txt(w)), d.querySelector('.stat') && d.querySelector('.stat').textContent);
   check('Raster: 8 Räume × 3 Slots, 5 frei', d.querySelectorAll('.grid .r').length === 8 && d.querySelectorAll('.cell.free').length === 5);
   check('Timer bereit mit 30 s', d.querySelector('.ring .num b').textContent === '30');
@@ -116,6 +116,15 @@ const txt = w => w.document.body.textContent.replace(/\s+/g, ' ');
   await ev('refresh()'); await sleep(50);
   check('Live: neue Session wird hervorgehoben, 20 von 24', d.querySelectorAll('.cell.new').length === 1 && /20 von 24/.test(txt(w)));
   fx.p.cards.pop();
+
+  // QR-Tafel zur mobilen Ansicht
+  check('Ohne Handy-Link kein QR-Knopf', !d.querySelector('[data-act="qr"]'));
+  w = open('sessionplanung.html', `#plan=${PLAN_ID}.t&qr=${encodeURIComponent('https://x.test/plan.html')}`); d = w.document; await sleep(200);
+  check('Mit Handy-Link gibt es den QR-Knopf', !!d.querySelector('.timer [data-act="qr"]'));
+  d.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'q' })); await sleep(50);
+  check('Q zeigt die QR-Tafel statt des Timers', d.querySelector('.main').classList.contains('qr') && /Jetzt scannen/.test(txt(w)));
+  d.dispatchEvent(new w.KeyboardEvent('keydown', { key: ' ' })); await sleep(50);
+  check('Leertaste führt zurück zum Timer, ohne zu starten', !d.querySelector('.main').classList.contains('qr') && w.eval('T.state') === 'ready');
 
   console.log(fails ? `\n${fails} Test(s) fehlgeschlagen` : '\nAlle Tests von Zeitplan und Sessionplanung bestanden');
   process.exit(fails ? 1 : 0);

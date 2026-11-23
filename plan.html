@@ -38,9 +38,10 @@
   /* Reiter unten (gut mit dem Daumen erreichbar) */
   nav { position:fixed; left:0; right:0; bottom:0; z-index:6; background:#fff; border-top:1px solid #e3e3e3;
     padding:6px 8px calc(6px + env(safe-area-inset-bottom)); display:flex; justify-content:center; gap:6px; }
-  nav button { flex:1; max-width:220px; border:0; background:none; font:inherit; color:var(--muted); padding:6px 4px; border-radius:12px;
+  nav button, nav a.docTab { flex:1; text-decoration:none; max-width:220px; border:0; background:none; font:inherit; color:var(--muted); padding:6px 4px; border-radius:12px;
     display:flex; flex-direction:column; align-items:center; gap:2px; font-size:12px; font-weight:700; cursor:pointer; }
-  nav button .ic { font-size:22px; line-height:1; font-weight:800; }
+  nav a.docTab[hidden] { display:none; }
+  nav button .ic, nav a.docTab .ic { font-size:22px; line-height:1; font-weight:800; }
   nav button[aria-selected="true"] { color:#fff; background:var(--red); }
   .badge { background:var(--red); color:#fff; border-radius:999px; font-size:11px; padding:0 6px; margin-left:3px; }
 
@@ -120,6 +121,7 @@
   <button role="tab" data-tab="jetzt" aria-selected="true"><span class="ic">◷</span>Jetzt</button>
   <button role="tab" data-tab="alle" aria-selected="false"><span class="ic">☰</span>Alle Sessions</button>
   <button role="tab" data-tab="mein" aria-selected="false"><span class="ic">★</span><span>Mein Plan<span id="mineCount" class="badge" hidden></span></span></button>
+  <a class="docTab" id="docTab" target="_blank" rel="noopener" hidden><span class="ic">✎</span>Doku</a>
 </nav>
 <div id="toast"></div>
 
@@ -493,6 +495,8 @@ async function refresh(first) {
 async function start() {
   if (!conf.plan) return showSetup();
   if (conf.zeit) document.body.parentElement.classList.add('demo');
+  // Reiter „Doku“ öffnet die Session-Dokumentation direkt in TaskCards
+  if (conf.doku) { $('docTab').href = docLink(); $('docTab').hidden = false; }
   $('view').innerHTML = '<div class="card muted">Lade Sessionplan …</div>';
   document.body.className = 'tab-jetzt';
   await refresh(true);

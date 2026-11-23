@@ -6,8 +6,9 @@
 <title>Sessionplanung · Bremer BildungsBarcamp</title>
 <link rel="icon" href="assets/favicon.png">
 <link rel="stylesheet" href="https://fonts.bunny.net/css?family=noto-sans:400,600,700,800">
-<link rel="stylesheet" href="barcamp.css?v=2026-11-23b">
-<script src="taskcards.js?v=2026-11-23b"></script>
+<link rel="stylesheet" href="barcamp.css?v=2026-11-23c">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="taskcards.js?v=2026-11-23c"></script>
 <style>
   /* Links der Vorstellungs-Timer, rechts das Live-Raster Räume × Zeitslots */
   .main { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.35fr); gap:2vw; }
@@ -35,6 +36,16 @@
   @keyframes flash { 50% { background:var(--red2); } }
   .timer .hint { color:var(--muted); font-size:clamp(13px,1.2vw,22px); }
   .timer .hint kbd { background:var(--grey); border-radius:6px; padding:.05em .45em; font:inherit; font-weight:700; color:var(--ink); }
+  /* QR-Tafel: Sessionplan aufs Handy (ersetzt nach der Planung den Timer) */
+  .main.qr .timer { display:none; }
+  .qrpanel { display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .main.qr .qrpanel { display:flex; }
+  .qrpanel h1 { color:var(--red); font-size:clamp(24px,min(3vw,5vh),60px); margin:1.2vh 0 .4vh; line-height:1.1; }
+  .qrpanel h2 { font-size:clamp(15px,min(1.5vw,2.6vh),30px); margin:0 0 2vh; font-weight:700; }
+  .qrpanel .qr { width:min(30vw, 46vh); flex:none; }
+  .main.solo .qrpanel .qr { width:min(50vw, 52vh); }
+  .qrpanel .qr svg { display:block; width:100%; height:auto; }
+  .qrpanel .back { margin-top:2vh; }
   .ctrls { display:flex; gap:.6vw; flex-wrap:wrap; justify-content:center; margin-top:1.6vh; }
   .ctrls button { border:0; border-radius:999px; font:inherit; font-weight:700; font-size:clamp(13px,1.15vw,20px); padding:.55em 1.1em; cursor:pointer; background:var(--grey); color:var(--ink); }
   .ctrls button.go { background:var(--red); color:#fff; font-size:clamp(15px,1.5vw,26px); padding:.6em 1.5em; }
@@ -218,7 +229,7 @@ function timerHTML() {
       <svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="${R}"/><circle class="fg" cx="50" cy="50" r="${R}" stroke-dasharray="${CIRC}" stroke-dashoffset="0"/></svg>
       <div class="num"><b>${T.dur}</b><span>Sekunden</span></div>
     </div>
-    <div class="hint"><kbd>Leertaste</kbd> nächste Vorstellung · <kbd>P</kbd> Pause · <kbd>G</kbd> Raster · <kbd>T</kbd> Ton</div>
+    <div class="hint"><kbd>Leertaste</kbd> nächste Vorstellung · <kbd>P</kbd> Pause · <kbd>G</kbd> Raster · <kbd>T</kbd> Ton${C.planQr ? ' · <kbd>Q</kbd> QR-Code' : ''}</div>
     <div class="ctrls">
       <button class="go" data-act="go">▶ Start</button>
       <button data-act="pause">Pause</button>
@@ -226,7 +237,18 @@ function timerHTML() {
       <button data-act="sound" title="Ton an/aus (M)">${T.sound ? 'Ton an' : 'Ton aus'}</button>
       <button data-act="menu" title="Tonauswahl (T)">Ton wählen</button>
       <button data-act="reset" title="Zähler auf 0">↺ Zähler</button>
+      ${C.planQr ? '<button data-act="qr" title="QR-Code zum Sessionplan (Q)">QR-Code</button>' : ''}
     </div></div>`;
+}
+
+// QR-Code zur mobilen Ansicht, z. B. nach der Planung statt des Timers
+function qrHTML() {
+  if (!C.planQr) return '';
+  return `<div class="panel qrpanel"><span class="pill">Sessionplan aufs Handy</span>
+    <h1>Jetzt scannen und Sessions merken</h1>
+    <h2>Alle Räume, dein eigener Plan und die Dokumentation</h2>
+    <div class="qr">${BC.qrSvg(C.planQr)}</div>
+    <div class="ctrls back"><button data-act="qr" title="Zurück zum Timer (Q)">Zurück zum Timer</button></div></div>`;
 }
 
 // ================= Live-Raster Räume × Zeitslots =================
@@ -258,13 +280,13 @@ function fitGrid() {
     9, window.innerWidth / 50);
 }
 
-let solo = false;
+let solo = false, showQr = false;
 function draw() {
   const nowM = Math.floor(BC.nowSec(C) / 60);
   $('app').innerHTML = `<div class="stage${C.zeit ? ' demo' : ''}">
     <div class="top"><img class="logo" src="assets/logo-weiss.png" alt="Bremer BildungsBarcamp"><span class="sub">· Sessionplanung</span>${C.tag ? `<span class="tag">${BC.esc(C.tag)}</span>` : ''}
       <span class="clock">${BC.fmt(nowM % 1440)}</span></div>
-    <div class="main${solo ? ' solo' : ''}">${timerHTML()}${gridHTML()}</div></div>${menuHTML()}`;
+    <div class="main${solo ? ' solo' : ''}${showQr && C.planQr ? ' qr' : ''}">${timerHTML()}${qrHTML()}${gridHTML()}</div></div>${menuHTML()}`;
   paintTimer(); fitGrid();
 }
 // nur das Raster neu zeichnen (Timer läuft ungestört weiter)
@@ -313,7 +335,7 @@ document.addEventListener('input', e => {
 document.addEventListener('click', e => {
   const a = e.target.closest('[data-act]'); if (!a) return;
   ({ go: startNext, pause: togglePause, minus: () => setDur(T.dur - 5), plus: () => setDur(T.dur + 5),
-     sound: toggleSound, reset: resetCount, menu: toggleMenu, close: toggleMenu,
+     sound: toggleSound, reset: resetCount, qr: toggleQr, menu: toggleMenu, close: toggleMenu,
      tryEnd: () => { audio(); endSound(); }, tryTick: () => { audio(); [3, 2, 1].forEach((n, i) => setTimeout(() => tick(n === 1), i * 1000)); },
   })[a.dataset.act]();
 });
@@ -322,7 +344,8 @@ document.addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   if (menuOpen && (k === 'escape' || k === 't')) { toggleMenu(); return; }
   if (menuOpen) return;
-  if (k === ' ' || k === 'enter') { e.preventDefault(); startNext(); }
+  if (k === ' ' || k === 'enter') { e.preventDefault(); if (showQr) toggleQr(); else startNext(); }
+  else if (k === 'q') toggleQr();
   else if (k === 'p') togglePause();
   else if (k === 'escape') stopTimer();
   else if (k === '+' || k === 'arrowup') setDur(T.dur + 5);
@@ -333,6 +356,11 @@ document.addEventListener('keydown', e => {
   else if (k === 'g') { solo = !solo; draw(); }
 });
 window.addEventListener('resize', () => fitGrid());
+// QR-Tafel ein/aus, ohne den Timer zu verlieren
+function toggleQr() {
+  if (!C.planQr) { BC.flash('Kein Handy-Link: In der Diashow beim Sessionplan eintragen'); return; }
+  showQr = !showQr; document.querySelector('.main').classList.toggle('qr', showQr); fitGrid();
+}
 
 BC.installChrome('sessionplanung.html');
 draw();

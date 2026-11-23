@@ -29,7 +29,16 @@ const BC = (() => {
     const hp = p.get('plan');
     if (hp && /^[0-9a-f-]{36}/i.test(hp)) { const [id, token] = hp.split('.'); plan = { id, token: token || '' }; }
     else if (cfg.plan) { const s = parseShare(cfg.plan); if (s) { plan = { id: s.id, token: s.token }; host = s.host; } }
-    return { plan, host, zeit: p.get('zeit'), tag: p.get('tag') || cfg.tag || '', planQr: p.get('qr') || cfg.planQr || '', cfg };
+    return { plan, host, zeit: p.get('zeit'), tag: p.get('tag') || cfg.tag || '', planQr: p.get('qr') || cfg.planQr || autoMobile(cfg), cfg };
+  }
+  // Link zur mobilen Ansicht aus den gespeicherten TaskCards-Links bauen (wie in der Diashow)
+  function autoMobile(cfg) {
+    const p = parseShare(cfg.plan || ''); if (!p) return '';
+    const hp = new URLSearchParams(); hp.set('plan', p.id + '.' + p.token);
+    const d = parseShare(cfg.url || ''); if (d && d.id !== p.id) hp.set('doku', d.id + '.' + d.token);
+    if (!/hb\.taskcards\.app$/.test(p.host)) hp.set('host', p.host.replace(/^https?:\/\//, ''));
+    const base = location.protocol === 'file:' ? 'https://skb-referat10.github.io/barcamp-diashow/' : location.href.split(/[?#]/)[0].replace(/[^\/]*$/, '');
+    return base + 'plan.html#' + hp.toString();
   }
 
   // ---------- Uhrzeit (mit #zeit=09:10 simulierbar) ----------
@@ -191,7 +200,7 @@ const BC = (() => {
   const embedded = window.parent !== window;
   function goView(file) {
     if (embedded) { window.parent.postMessage({ bcView: file }, '*'); return; }
-    location.href = (file === 'index.html' ? 'index.html?v=2026-11-23b#go' : file + '?v=2026-11-23b' + location.hash);
+    location.href = (file === 'index.html' ? 'index.html?v=2026-11-23c#go' : file + '?v=2026-11-23c' + location.hash);
   }
   function toggleFull() {
     if (embedded) { window.parent.postMessage({ bcFull: true }, '*'); return; }
@@ -239,5 +248,5 @@ const BC = (() => {
   }
 
   return { $, esc, fmt, conf, resetPlan, findAgenda, readCfg, writeCfg, parseShare, nowSec, loadPlan, parsePlan, parseAgenda, plainText, isPlaceholder,
-           qrSvg, setupForm, installChrome, toggleFull, maxFit };
+           qrSvg, setupForm, installChrome, toggleFull, maxFit, flash };
 })();
