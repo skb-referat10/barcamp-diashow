@@ -11,7 +11,7 @@ Entstanden am Barcamp-Tag #3B12 (19.11.2026), gepflegt vom Team digitale Schulen
 - **Doku-Abgleich:** Doku-Karten werden über ähnliche Titel der passenden Session zugeordnet. Die Folie „Doku-Stand“ zeigt je Zeitslot, welche Sessions schon dokumentiert sind. Platzhalter wie „Session 7.1“ werden ignoriert.
 - **Fotos und Social Wall:** Ab 4 eigenen Fotos (Dateien, Ordner oder Drag & Drop) gibt es eine animierte Foto-Collage. Optional lässt sich eine Social Wall einbinden, z. B. Walls.io.
 - **Demomodus:** Spielt den Barcamp-Tag mit simulierter Uhrzeit im Zeitraffer ab, z. B. für alle, die nicht dabei waren.
-- **Corporate Design** des Bremer BildungsBarcamps: Noto Sans, Barcamp-Rot, rote Pills und eine Himmel-Hügel-Landschaft. Ein Logo kann man optional hochladen.
+- **Corporate Design** nach dem Designhandbuch des Bremer BildungsBarcamps: Noto Sans, roter Verlauf mit Textur, echte Logo-Dateien und die Bremer Skyline in Schwarz. Mehr dazu unten unter „Corporate Design“.
 - **Vollbild, Tastenkürzel, automatische Textanpassung** an die Bildschirmgröße.
 
 ## 🚀 Schnellstart für ein neues Barcamp
@@ -33,7 +33,7 @@ Die Seiten laufen direkt über GitHub Pages, man muss nichts herunterladen:
 5. **Diashow einrichten.** Auf dem Beamer-Rechner die Diashow öffnen und im Startdialog eintragen:
    - Doku-Link, Sessionplan-Link und **Hashtag** der neuen Ausgabe
    - beim QR-Code „Ganzer Sessionplan“ den Link aus Schritt 4
-   - optional Logo, Social Wall und Fotos
+   - optional Social Wall und Fotos, dazu Bildnachweis (z. B. „Foto: Vorname Nachname“) und ob Fotos schwarz-weiß gezeigt werden (Standard: an)
 6. **Generalprobe im Demomodus.** Im Startdialog „Demomodus“ anhaken, Startzeit vor dem ersten Slot wählen, Zeitraffer z. B. 10. Dann einmal durchlaufen lassen: Stimmen Räume, Slots und Farben? Beim mobilen Plan geht das mit `&zeit=10:20` am Ende des Links.
 
 > 💡 **Testen mit einem alten Barcamp:** Die Teilen-Links früherer Ausgaben einfach im Demomodus eintragen. Der Tag wird dann mit den echten Sessions und Dokus von damals nachgespielt. Das klappt nur, wenn das alte Board schon diese Struktur hatte: Spalte „Zeitslot“ und eine Farbe pro Slot.
@@ -131,7 +131,18 @@ Unter *Settings → Pages → Branch `main` / root* aktivieren. Danach läuft di
 - **Keine Zugangsdaten ins Repo!** Teilen-Links mit `?token=…` öffnen die Pinnwände für jede Person, die den Link hat. Sie werden nur im Browser gespeichert (localStorage), nie in dieser Datei.
 - Die Seite spricht direkt mit TaskCards (Instanz `hb.taskcards.app`), über denselben anonymen Besucherzugang wie im Browser. Sie lädt außerdem Bibliotheken von **cdnjs** (QR-Codes, pdf.js) und die Schrift Noto Sans von **Bunny Fonts** (EU, statt Google Fonts).
 - Eigene Fotos werden nur im Browser verkleinert und angezeigt, nirgendwohin hochgeladen.
-- Bei einer Social Wall die Moderation einschalten. Fotos von Personen, besonders von Schüler:innen, nur mit Einverständnis zeigen.
+- Bei einer Social Wall die Moderation einschalten. Fotos von Personen nur mit Einverständnis zeigen: Wer ein **rotes Band** trägt, möchte nicht fotografiert werden. Keine Fotos von Kindern.
+
+## Corporate Design
+
+Alle Ansichten folgen dem Designhandbuch des Bremer BildungsBarcamps:
+
+- **Farben:** nur Barcamp-Rot `#b8253a`, Hellrot `#d43448`, Schwarz `#000`/`#1a1a1a`, Hellgrau `#e6e6e6` und Weiß. Flächen bekommen den roten Verlauf (160°) mit Textur.
+- **Logo:** immer die Dateien aus `assets/` (weiß auf Rot, schwarz auf Hell). Den Schriftzug nie in Noto Sans nachbauen, nicht verzerren oder umfärben. Die Skyline gibt es nur in Schwarz.
+- **Text:** immer „Bremer BildungsBarcamp“, gendern mit :Innen, keine Gedankenstriche.
+- **Fotos:** am liebsten schwarz-weiß und mit Bildnachweis.
+
+Der Test `tests/cd.test.js` prüft, dass keine Fremdfarben oder nachgebauten Schriftzüge in die Seiten rutschen.
 
 ## Technik
 
@@ -146,8 +157,10 @@ npm install
 npm test
 ```
 
-Die Tests laufen in [jsdom](https://github.com/jsdom/jsdom) mit einer anonymisierten Momentaufnahme der Boards (`tests/fixture.json`) und sprechen nie mit dem echten TaskCards. Sie prüfen unter anderem Doku-Abgleich, Demo-Uhr, Platzhalter-Filter, Rotation und Collage sowie bei der mobilen Ansicht Merken, Konflikte, Suche und das Teilen des eigenen Plans und bei Zeitplan und Sessionplanung Tagesablauf, Timer-Ablauf und Live-Raster.
+Die Tests laufen in [jsdom](https://github.com/jsdom/jsdom) mit einer anonymisierten Momentaufnahme der Boards (`tests/fixture.json`) und sprechen nie mit dem echten TaskCards. Sie prüfen unter anderem die Einhaltung des Corporate Designs, Doku-Abgleich, Demo-Uhr, Platzhalter-Filter, Rotation und Collage sowie bei der mobilen Ansicht Merken, Konflikte, Suche und das Teilen des eigenen Plans und bei Zeitplan und Sessionplanung Tagesablauf, Timer-Ablauf und Live-Raster.
 
 ## Lizenz
 
 [MIT](LICENSE): frei nutzbar, veränderbar und weitergebbar, auch für andere Barcamps.
+
+**Ausnahme:** Logos, Skyline und Hintergründe in `assets/` fallen nicht unter die MIT-Lizenz. Die Rechte liegen beim Orga-Team des Bremer BildungsBarcamps (siehe `assets/HINWEIS.md`).

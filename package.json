@@ -4,7 +4,7 @@
   "description": "Live-Diashow für das Bremer BildungsBarcamp: zeigt Session-Dokumentation und Sessionplan aus TaskCards auf dem Beamer.",
   "private": true,
   "scripts": {
-    "test": "node tests/diashow.test.js && node tests/plan.test.js && node tests/views.test.js"
+    "test": "node tests/cd.test.js && node tests/diashow.test.js && node tests/plan.test.js && node tests/views.test.js"
   },
   "devDependencies": {
     "jsdom": "^24.0.0"

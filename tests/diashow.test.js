@@ -88,7 +88,7 @@ const check = (name, cond, info) => { console.log((cond ? '✔ ' : '✘ ') + nam
   const ki = ev(`cards.findIndex(c=>c._title.startsWith('KI für Fortg'))`);
   ev(`show(${ki})`);
   const sess = [...$('slideWrap').querySelectorAll('.slide')].pop().querySelector('.session');
-  check('Doku-Folie mit „📍 KNOOPSPARK · 11:45 Uhr“', sess && sess.textContent === '📍 KNOOPSPARK · 11:45 Uhr', sess && sess.textContent);
+  check('Doku-Folie mit „KNOOPSPARK · 11:45 Uhr“', sess && sess.textContent === 'KNOOPSPARK · 11:45 Uhr', sess && sess.textContent);
 
   // 8) Demo-Schleife nach Tagesende
   ev('demoT0 = Date.now() - 600*60000/0.5');   // 600 simulierte Minuten später

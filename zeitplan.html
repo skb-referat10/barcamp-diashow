@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zeitplan · Bremer BildungsBarcamp</title>
+<link rel="icon" href="assets/favicon.png">
 <link rel="stylesheet" href="https://fonts.bunny.net/css?family=noto-sans:400,600,700,800">
-<link rel="stylesheet" href="barcamp.css?v=2026-11-20c">
+<link rel="stylesheet" href="barcamp.css?v=2026-11-23a">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-<script src="taskcards.js?v=2026-11-20c"></script>
+<script src="taskcards.js?v=2026-11-23a"></script>
 <style>
   /* Zeitplan: links der Tagesablauf, rechts „Jetzt“, „Danach“ und QR-Code */
   .main { flex:1; min-height:0; display:grid; grid-template-columns:1.45fr 1fr; gap:2vw; }
@@ -19,16 +20,16 @@
   .item .x small { display:block; font-weight:400; color:var(--muted); font-size:.68em; }
   .item .s { font-size:.7em; font-weight:800; white-space:nowrap; }
   .item.past { opacity:.45; }
-  .item.past .s::before { content:"✓"; color:var(--green); }
+  .item.past .s::before { content:"✓"; color:var(--red); }
   .item.now { background:var(--red); color:#fff; box-shadow:0 6px 18px rgba(184,37,58,.3); transform:scale(1.015); }
-  .item.now .x small { color:#ffd9de; }
-  .item.next { background:#fff3cd; }
+  .item.now .x small { color:rgba(255,255,255,.85); }
+  .item.next { background:var(--grey); }
   .item.end .x { color:var(--muted); }
   .side { display:flex; flex-direction:column; gap:2vh; min-height:0; }
   .nowcard h1 { font-size:clamp(28px,3.6vw,72px); }
   .nowcard .when { font-weight:800; font-size:clamp(16px,1.8vw,34px); margin-top:1vh; }
   .nowcard .rest { color:var(--muted); font-size:clamp(14px,1.4vw,26px); margin-top:.6vh; }
-  .bar { height:12px; background:#eee; border-radius:99px; overflow:hidden; margin-top:1.6vh; }
+  .bar { height:12px; background:var(--grey); border-radius:99px; overflow:hidden; margin-top:1.6vh; }
   .bar i { display:block; height:100%; background:var(--red); border-radius:99px; transition:width 1s linear; }
   .nextcard .lbl { color:var(--muted); font-weight:700; font-size:clamp(13px,1.2vw,22px); }
   .nextcard .txt { font-weight:800; font-size:clamp(18px,2vw,40px); margin-top:.5vh; }
@@ -40,14 +41,7 @@
 </style>
 </head>
 <body>
-<div id="scene" aria-hidden="true">
-  <div class="wolke" style="top:7vh;--w:15vw;--t:150s;--d:-30s"></div>
-  <div class="wolke" style="top:20vh;--w:10vw;--t:115s;--d:-80s"></div>
-  <svg class="hills" viewBox="0 0 1600 340" preserveAspectRatio="none">
-    <path d="M0 210 C 260 120, 520 140, 760 190 S 1240 260, 1600 150 L1600 340 L0 340 Z" fill="var(--hill1)"/>
-    <path d="M0 290 C 300 230, 620 250, 900 280 S 1350 200, 1600 120 L1600 340 L0 340 Z" fill="var(--hill2)"/>
-  </svg>
-</div>
+<div class="skyline" aria-hidden="true"></div>
 <div id="app"><div class="loading">Lade Zeitplan …</div></div>
 
 <script>
@@ -91,7 +85,7 @@ function render() {
       <div class="when">${BC.fmt(cur.start)}${cur.end != null ? '–' + BC.fmt(cur.end) : ''} Uhr</div>
       <div class="rest">${cur.end != null ? 'noch ' + left + ' Min.' : ''}</div><div class="bar"><i style="width:${pct}%"></i></div>`;
   } else if (over) {
-    nowHTML = `<span class="pill">Danke!</span><h1 class="big">Schön, dass ihr da wart 💛</h1><div class="rest">Die Ergebnisse findet ihr in der Session-Dokumentation.</div>`;
+    nowHTML = `<span class="pill">Danke!</span><h1 class="big">Schön, dass ihr da wart!</h1><div class="rest">Die Ergebnisse findet ihr in der Session-Dokumentation.</div>`;
   } else if (nxt) {
     const wait = nxt.start - nowM;
     nowHTML = `<span class="pill">Gleich geht’s los</span><h1 class="big">Willkommen beim Bremer BildungsBarcamp!</h1>
@@ -107,10 +101,10 @@ function render() {
 
   const nextHTML = nxt && cur ? `<div class="panel nextcard"><div class="lbl">Danach · ${BC.fmt(nxt.start)} Uhr${nxt.start - nowM <= 60 ? ' · in ' + (nxt.start - nowM) + ' Min.' : ''}</div><div class="txt">${BC.esc(nxt.text)}</div></div>` : '';
   const qr = C.planQr ? BC.qrSvg(C.planQr) : '';
-  const qrHTML = qr ? `<div class="panel qrcard"><div class="qr">${qr}</div><div><b>📱 Sessionplan aufs Handy</b><span>Jetzt-läuft, alle Sessions und dein eigener Plan</span></div></div>` : '';
+  const qrHTML = qr ? `<div class="panel qrcard"><div class="qr">${qr}</div><div><b>Sessionplan aufs Handy</b><span>Jetzt-läuft, alle Sessions und dein eigener Plan</span></div></div>` : '';
 
   BC.$('app').innerHTML = `<div class="stage${C.zeit ? ' demo' : ''}">
-    <div class="top"><span class="brand">Bremer BildungsBarcamp</span><span class="sub">· Tagesablauf</span>${C.tag ? `<span class="tag">${BC.esc(C.tag)}</span>` : ''}
+    <div class="top"><img class="logo" src="assets/logo-weiss.png" alt="Bremer BildungsBarcamp"><span class="sub">· Tagesablauf</span>${C.tag ? `<span class="tag">${BC.esc(C.tag)}</span>` : ''}
       <span class="clock">${BC.fmt(nowM % 1440)}</span></div>
     <div class="main">
       <div class="panel agenda"><span class="pill">Zeitplan</span><div class="list">${list}</div></div>

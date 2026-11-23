@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sessionplanung · Bremer BildungsBarcamp</title>
+<link rel="icon" href="assets/favicon.png">
 <link rel="stylesheet" href="https://fonts.bunny.net/css?family=noto-sans:400,600,700,800">
-<link rel="stylesheet" href="barcamp.css?v=2026-11-20c">
-<script src="taskcards.js?v=2026-11-20c"></script>
+<link rel="stylesheet" href="barcamp.css?v=2026-11-23a">
+<script src="taskcards.js?v=2026-11-23a"></script>
 <style>
   /* Links der Vorstellungs-Timer, rechts das Live-Raster Räume × Zeitslots */
   .main { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.35fr); gap:2vw; }
@@ -18,17 +19,17 @@
   .ring { position:relative; width:min(34vw, 56vh); aspect-ratio:1; margin:2vh 0; cursor:pointer; }
   .main.solo .ring { width:min(60vw, 62vh); }
   .ring svg { width:100%; height:100%; transform:rotate(-90deg); }
-  .ring .bg { fill:none; stroke:#eee; stroke-width:9; }
-  .ring .fg { fill:none; stroke:var(--green); stroke-width:9; stroke-linecap:round; transition:stroke .3s; }
+  .ring .bg { fill:none; stroke:var(--grey); stroke-width:9; }
+  .ring .fg { fill:none; stroke:var(--black); stroke-width:9; stroke-linecap:round; transition:stroke .3s; }
   .ring .num { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
   .ring .num b { font-size:clamp(60px,11vw,220px); font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
   .main.solo .ring .num b { font-size:clamp(80px,17vw,320px); }
   .ring .num span { color:var(--muted); font-weight:700; font-size:clamp(13px,1.3vw,24px); margin-top:.6vh; }
-  .timer.warn .fg { stroke:var(--gold); }
+  .timer.warn .fg { stroke:var(--red2); }
   .timer.crit .fg { stroke:var(--red); }
   .timer.crit .ring .num b { color:var(--red); animation:beat 1s ease-in-out infinite; }
   @keyframes beat { 0%,100% { transform:scale(1); } 15% { transform:scale(1.12); } }
-  .timer.done { background:var(--red); color:#fff; animation:flash 1s ease-in-out 3; }
+  .timer.done { background:linear-gradient(160deg, var(--red), var(--red2)); color:#fff; animation:flash 1s ease-in-out 3; }
   .timer.done .ring .num b, .timer.done .ring .num span, .timer.done .count, .timer.done .hint { color:#fff; }
   .timer.done .bg { stroke:rgba(255,255,255,.25); }
   @keyframes flash { 50% { background:var(--red2); } }
@@ -54,30 +55,23 @@
   .gridpanel { display:flex; flex-direction:column; }
   .gridhead { display:flex; align-items:baseline; justify-content:space-between; gap:1vw; }
   .gridhead .stat { font-weight:800; font-size:clamp(15px,1.6vw,30px); }
-  .gridhead .stat em { font-style:normal; color:var(--green); }
-  .fill { height:10px; background:#eee; border-radius:99px; overflow:hidden; margin:1.2vh 0 1.6vh; }
-  .fill i { display:block; height:100%; background:var(--green); border-radius:99px; transition:width 1s; }
+  .gridhead .stat em { font-style:normal; color:var(--red); }
+  .fill { height:10px; background:var(--grey); border-radius:99px; overflow:hidden; margin:1.2vh 0 1.6vh; }
+  .fill i { display:block; height:100%; background:var(--red); border-radius:99px; transition:width 1s; }
   .grid { flex:1; min-height:0; display:grid; gap:.35em; overflow:hidden; }
   .grid .h { font-weight:800; font-size:.8em; align-self:end; padding:0 .3em .2em; }
   .grid .r { font-weight:800; color:var(--red); text-transform:uppercase; letter-spacing:.04em; font-size:.62em; align-self:center; padding-right:.4em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .cell { border-radius:10px; padding:.35em .5em; line-height:1.18; min-height:0; overflow:hidden; background:#eef6e8; border-left:5px solid var(--green); }
+  .cell { border-radius:10px; padding:.35em .5em; line-height:1.18; min-height:0; overflow:hidden; background:var(--grey2); border-left:5px solid var(--red); }
   .cell b { display:block; font-weight:700; }
   .cell small { color:var(--muted); font-size:.75em; }
-  .cell.free { background:none; border:2px dashed #d0d0d0; color:#aaa; display:flex; align-items:center; justify-content:center; font-size:.8em; }
+  .cell.free { background:none; border:2px dashed #c8c8c8; color:#8a8a8a; display:flex; align-items:center; justify-content:center; font-size:.8em; }
   .cell.new { animation:pop 1.6s ease; }
-  @keyframes pop { 0% { transform:scale(.6); background:#fff3cd; } 40% { transform:scale(1.06); background:#fff3cd; } 100% { transform:none; } }
+  @keyframes pop { 0% { transform:scale(.6); background:var(--red2); color:#fff; } 40% { transform:scale(1.06); background:var(--red2); color:#fff; } 100% { transform:none; } }
   .gridfoot { color:var(--muted); font-size:clamp(11px,1vw,17px); margin-top:1vh; }
 </style>
 </head>
 <body>
-<div id="scene" aria-hidden="true">
-  <div class="wolke" style="top:7vh;--w:15vw;--t:150s;--d:-30s"></div>
-  <div class="wolke" style="top:20vh;--w:10vw;--t:115s;--d:-80s"></div>
-  <svg class="hills" viewBox="0 0 1600 340" preserveAspectRatio="none">
-    <path d="M0 210 C 260 120, 520 140, 760 190 S 1240 260, 1600 150 L1600 340 L0 340 Z" fill="var(--hill1)"/>
-    <path d="M0 290 C 300 230, 620 250, 900 280 S 1350 200, 1600 120 L1600 340 L0 340 Z" fill="var(--hill2)"/>
-  </svg>
-</div>
+<div class="skyline" aria-hidden="true"></div>
 <div id="app"></div>
 
 <script>
@@ -137,26 +131,26 @@ function bell(f, start, vol, len) {
 
 // Wählbare Endsignale
 const END_SOUNDS = {
-  horn:    { label:'📯 Horn (Stadion)', play() {          // kräftiges Signalhorn: zwei raue Töne, kurz gehalten
+  horn:    { label:'Horn (Stadion)', play() {          // kräftiges Signalhorn: zwei raue Töne, kurz gehalten
     [[370, 0.32], [466, 0.26], [554, 0.12]].forEach(([f, v]) => tone(f, 0, 0.35, v, 'sawtooth', { attack:0.03, hold:0.9, lowpass:2200, vib:[5, 4] }));
   } },
-  ship:    { label:'🚢 Schiffshorn (tief)', play() {
+  ship:    { label:'Schiffshorn (tief)', play() {
     [[110, 0.45], [165, 0.3], [220, 0.12]].forEach(([f, v]) => tone(f, 0, 0.6, v, 'sawtooth', { attack:0.12, hold:1.3, lowpass:700 }));
   } },
-  whistle: { label:'🏁 Pfiff (Schiri)', play() {         // zwei Pfiffe mit Triller
+  whistle: { label:'Pfiff (Schiri)', play() {         // zwei Pfiffe mit Triller
     tone(2900, 0, 0.08, 0.7, 'sine', { attack:0.01, hold:0.18, vib:[32, 140] });
     tone(2900, 0.38, 0.12, 0.7, 'sine', { attack:0.01, hold:0.55, vib:[32, 140] });
   } },
-  buzzer:  { label:'🟥 Buzzer (Quiz)', play() {
+  buzzer:  { label:'Buzzer (Quiz)', play() {
     tone(140, 0, 0.12, 0.35, 'square', { attack:0.005, hold:0.6, lowpass:1500 });
     tone(147, 0, 0.12, 0.25, 'square', { attack:0.005, hold:0.6, lowpass:1500 });
   } },
-  ding:    { label:'🔔 Ding (sanft)', play() { bell(784, 0, 0.55, 2.4); } },
-  cuckoo:  { label:'🐦 Kuckuck', play() {
+  ding:    { label:'Ding (sanft)', play() { bell(784, 0, 0.55, 2.4); } },
+  cuckoo:  { label:'Kuckuck', play() {
     tone(659, 0, 0.25, 0.7, 'sine', { attack:0.02, hold:0.12 }); tone(523, 0.42, 0.35, 0.7, 'sine', { attack:0.02, hold:0.18 });
   } },
-  gong:    { label:'🛎️ Schulgong (3 Töne)', play() { bell(392, 0, 0.5, 2.6); bell(330, 0.75, 0.5, 2.6); bell(262, 1.5, 0.55, 4.0); } },
-  none:    { label:'🔇 Kein Ton (nur Bild)', play() {} },
+  gong:    { label:'Schulgong (3 Töne)', play() { bell(392, 0, 0.5, 2.6); bell(330, 0.75, 0.5, 2.6); bell(262, 1.5, 0.55, 4.0); } },
+  none:    { label:'Kein Ton (nur Bild)', play() {} },
 };
 const TICKS = { soft:'leises Tock', clear:'deutliches Ticken', off:'kein Ticken' };
 
@@ -210,7 +204,7 @@ function paintTimer() {
   box.classList.toggle('done', T.state === 'done');
   box.querySelector('.fg').style.strokeDashoffset = CIRC * (1 - r / T.dur);
   box.querySelector('.num b').textContent = T.state === 'done' ? '0' : whole;
-  box.querySelector('.num span').textContent = { ready:'Sekunden', run:'Sekunden', pause:'⏸ Pause', done:'⏰ Zeit!' }[T.state];
+  box.querySelector('.num span').textContent = { ready:'Sekunden', run:'Sekunden', pause:'Pause', done:'Zeit!' }[T.state];
   box.querySelector('.count').textContent = T.count ? `Vorstellung #${T.count}` : 'Bereit für die erste Vorstellung';
   box.querySelector('.go').textContent = T.state === 'ready' && !T.count ? '▶ Start' : '▶ Nächste Vorstellung';
   const clock = document.querySelector('.top .clock');
@@ -227,10 +221,10 @@ function timerHTML() {
     <div class="hint"><kbd>Leertaste</kbd> nächste Vorstellung · <kbd>P</kbd> Pause · <kbd>G</kbd> Raster · <kbd>T</kbd> Ton</div>
     <div class="ctrls">
       <button class="go" data-act="go">▶ Start</button>
-      <button data-act="pause">⏸</button>
+      <button data-act="pause">Pause</button>
       <button data-act="minus">−5 s</button><button data-act="plus">+5 s</button>
-      <button data-act="sound" title="Ton an/aus (M)">${T.sound ? '🔊' : '🔇'}</button>
-      <button data-act="menu" title="Tonauswahl (T)">🎵 Ton wählen</button>
+      <button data-act="sound" title="Ton an/aus (M)">${T.sound ? 'Ton an' : 'Ton aus'}</button>
+      <button data-act="menu" title="Tonauswahl (T)">Ton wählen</button>
       <button data-act="reset" title="Zähler auf 0">↺ Zähler</button>
     </div></div>`;
 }
@@ -239,7 +233,7 @@ function timerHTML() {
 let P = null, known = null, lastOk = null, err = '';
 
 function gridHTML() {
-  if (!P) return `<div class="panel gridpanel"><span class="pill">Sessionplan</span><p class="gridfoot">${err ? '⚠️ ' + BC.esc(err) : 'Lade Sessionplan …'}</p></div>`;
+  if (!P) return `<div class="panel gridpanel"><span class="pill">Sessionplan</span><p class="gridfoot">${err ? 'Achtung: ' + BC.esc(err) : 'Lade Sessionplan …'}</p></div>`;
   const slots = P.slots, rooms = P.rooms;
   const total = slots.length * rooms.length;
   const filled = P.sessions.length;
@@ -254,7 +248,7 @@ function gridHTML() {
     <div class="gridhead"><span class="pill">Sessionplan · live</span><span class="stat"><em>${filled}</em> von ${total} Plätzen belegt</span></div>
     <div class="fill"><i style="width:${total ? filled / total * 100 : 0}%"></i></div>
     <div class="grid" style="grid-template-columns:auto repeat(${slots.length}, minmax(0,1fr)); grid-template-rows:auto repeat(${rooms.length}, minmax(0,1fr));">${head}${rows}</div>
-    <div class="gridfoot">${P.proposals ? P.proposals + ' Sessionvorschläge auf dem Board · ' : ''}${lastOk ? 'Stand ' + lastOk.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit', second:'2-digit' }) : ''}${err ? ' · ⚠️ ' + BC.esc(err) : ''}</div></div>`;
+    <div class="gridfoot">${P.proposals ? P.proposals + ' Sessionvorschläge auf dem Board · ' : ''}${lastOk ? 'Stand ' + lastOk.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit', second:'2-digit' }) : ''}${err ? ' · Achtung: ' + BC.esc(err) : ''}</div></div>`;
 }
 
 function fitGrid() {
@@ -268,7 +262,7 @@ let solo = false;
 function draw() {
   const nowM = Math.floor(BC.nowSec(C) / 60);
   $('app').innerHTML = `<div class="stage${C.zeit ? ' demo' : ''}">
-    <div class="top"><span class="brand">Bremer BildungsBarcamp</span><span class="sub">· Sessionplanung</span>${C.tag ? `<span class="tag">${BC.esc(C.tag)}</span>` : ''}
+    <div class="top"><img class="logo" src="assets/logo-weiss.png" alt="Bremer BildungsBarcamp"><span class="sub">· Sessionplanung</span>${C.tag ? `<span class="tag">${BC.esc(C.tag)}</span>` : ''}
       <span class="clock">${BC.fmt(nowM % 1440)}</span></div>
     <div class="main${solo ? ' solo' : ''}">${timerHTML()}${gridHTML()}</div></div>${menuHTML()}`;
   paintTimer(); fitGrid();
@@ -297,7 +291,7 @@ function menuHTML() {
   if (!menuOpen) return '';
   const opts = (o, cur) => Object.entries(o).map(([k, v]) => `<option value="${k}"${k === cur ? ' selected' : ''}>${typeof v === 'string' ? v : v.label}</option>`).join('');
   return `<div class="menu" role="dialog" aria-label="Tonauswahl"><div class="menubox">
-    <h2>🎵 Ton für die Vorstellungen</h2>
+    <h2>Ton für die Vorstellungen</h2>
     <label>Signal am Ende</label>
     <div class="mrow"><select id="mEnd">${opts(END_SOUNDS, T.endSound)}</select><button data-act="tryEnd">▶ Probe</button></div>
     <label>In den letzten 3 Sekunden</label>
