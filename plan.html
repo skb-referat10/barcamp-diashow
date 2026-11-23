@@ -76,6 +76,37 @@
   .sess .hint { color:var(--muted); font-size:12px; margin-top:4px; }
   .sess.open .hint { display:none; }
 
+  .more .uhrbtn { display:inline-block; margin-top:10px; white-space:normal; }
+  .hero .uhrbtn { margin-top:12px; }
+
+  /* Session-Uhr für Sessiongeber:Innen (Vollbild über der Ansicht) */
+  #uhr { position:fixed; inset:0; z-index:20; background:linear-gradient(160deg, var(--red), var(--red2)); color:#fff; overflow:auto;
+    padding:calc(12px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; }
+  #uhr[hidden] { display:none; }
+  #uhr .uhead { display:flex; align-items:flex-start; gap:12px; }
+  #uhr .uhead .t { flex:1; min-width:0; }
+  #uhr .uroom { font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; opacity:.9; }
+  #uhr .utitle { font-size:18px; font-weight:800; line-height:1.25; margin-top:2px; }
+  #uhr .uclose { flex:none; width:44px; height:44px; border-radius:50%; border:0; background:#fff; color:var(--red); font-size:20px; font-weight:800; cursor:pointer; }
+  #uhr .ubody { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2vh 0; }
+  #uhr .upill { background:#fff; color:var(--red); border-radius:999px; padding:4px 14px; font-weight:800; font-size:13px; letter-spacing:.06em; text-transform:uppercase; }
+  #uhr .ubig { font-weight:800; font-size:clamp(72px, 27vw, 220px); line-height:1; font-variant-numeric:tabular-nums; margin:2vh 0 .5vh; }
+  #uhr .usub { font-weight:700; font-size:17px; opacity:.95; }
+  #uhr .ubar { width:100%; max-width:520px; height:10px; background:rgba(255,255,255,.3); border-radius:99px; overflow:hidden; margin-top:2.2vh; }
+  #uhr .ubar i { display:block; height:100%; background:#fff; border-radius:99px; transition:width 1s linear; }
+  #uhr .uline { display:flex; justify-content:space-between; width:100%; max-width:520px; margin-top:8px; font-size:13px; font-weight:700; }
+  #uhr .uline span { opacity:.65; }
+  #uhr .uline span.on { opacity:1; text-decoration:underline; text-underline-offset:3px; }
+  #uhr .utip { background:#fff; color:var(--ink); border-radius:18px; padding:14px 16px; text-align:left; max-width:520px; margin:0 auto; width:100%; }
+  #uhr .utip b.n { display:inline-flex; width:26px; height:26px; border-radius:50%; background:var(--red); color:#fff; align-items:center; justify-content:center; font-size:14px; margin-right:8px; flex:none; }
+  #uhr .utip .h { display:flex; align-items:center; font-weight:800; font-size:17px; color:var(--red); }
+  #uhr .utip p { margin:8px 0 0; font-size:15px; line-height:1.45; }
+  #uhr .utip ul { margin:8px 0 0; padding-left:0; list-style:none; font-size:15px; line-height:1.5; }
+  #uhr .utip li { display:flex; align-items:center; margin:5px 0; }
+  #uhr .utip .btn { margin-top:12px; display:inline-block; text-decoration:none; }
+  #uhr.urgent .utip { box-shadow:0 0 0 4px #000; }
+  #uhr .ufoot { text-align:center; font-size:12px; opacity:.8; margin-top:10px; }
+
   /* Mein Plan */
   .tl { position:relative; margin-left:8px; padding-left:18px; border-left:3px solid #e3e3e3; }
   .tl .dot { position:absolute; left:-10px; width:17px; height:17px; border-radius:50%; background:#fff; border:3px solid #cfcfcf; margin-top:24px; }
@@ -124,6 +155,7 @@
   <a class="docTab" id="docTab" target="_blank" rel="noopener" hidden><span class="ic">✎</span>Doku</a>
 </nav>
 <div id="toast"></div>
+<div id="uhr" hidden role="dialog" aria-label="Session-Uhr"></div>
 
 <script>
 // =====================================================================
@@ -307,7 +339,7 @@ function sessHTML(x) {
       </div>
       <button class="star" data-act="star" aria-pressed="${isMine}" aria-label="${isMine ? 'Aus meinem Plan entfernen' : 'Zu meinem Plan hinzufügen'}">${isMine ? '★' : '☆'}</button>
     </div>
-    ${x.about ? `<div class="more">${esc(x.about)}</div>` : ''}
+    <div class="more">${x.about ? esc(x.about) + '\n' : ''}<button class="btn uhrbtn" data-act="uhr">Ich gebe diese Session: Session-Uhr öffnen</button></div>
   </div>`;
 }
 const docLink = () => conf.doku ? `${conf.host}/#/board/${conf.doku.id}?token=${conf.doku.token}` : '#';
@@ -325,14 +357,16 @@ function viewJetzt(now) {
       <h2>${my.length ? '★ ' + esc(my[0].title) : cur.sessions.length + ' Sessions parallel'}</h2>
       <div class="when">${my.length ? esc(my[0].room) + ' · ' : ''}${fmt(cur.start)}–${fmt(cur.end)} Uhr</div>
       <div class="rest">${st.label}${my.length > 1 ? ' · du hast ' + my.length + ' Sessions in diesem Slot gemerkt' : ''}</div>
-      ${now >= cur.start && now < cur.end ? `<div class="progress"><i style="width:${pct}%"></i></div>` : ''}</div>`;
+      ${now >= cur.start && now < cur.end ? `<div class="progress"><i style="width:${pct}%"></i></div>` : ''}
+      <button class="btn ghost uhrbtn" data-act="uhr" data-slot="${cur.start}">Session-Uhr für Sessiongeber:Innen</button></div>`;
     h += `<div class="slothead"><h2>Alle Räume</h2><span class="chip ${st.cls}">${st.label}</span></div>`;
     h += sorted(cur.sessions).map(sessHTML).join('');
     if (nxt) h += `<div class="slothead"><h2>Danach · ${fmt(nxt.start)} Uhr</h2><span class="chip">${nxt.sessions.length} Sessions</span></div>` + sorted(nxt.sessions).map(sessHTML).join('');
   } else if (nxt) {
     const wait = nxt.start - now;
     h += `<div class="card hero"><span class="pill">Als Nächstes</span><h2>${fmt(nxt.start)}–${fmt(nxt.end)} Uhr</h2>
-      <div class="rest">${wait > 90 ? 'Der nächste Slot beginnt um ' + fmt(nxt.start) + ' Uhr.' : 'Beginnt in ' + wait + ' Min. Zeit für einen Kaffee!'}</div></div>`;
+      <div class="rest">${wait > 90 ? 'Der nächste Slot beginnt um ' + fmt(nxt.start) + ' Uhr.' : 'Beginnt in ' + wait + ' Min. Zeit für einen Kaffee!'}</div>
+      <button class="btn ghost uhrbtn" data-act="uhr" data-slot="${nxt.start}">Session-Uhr für Sessiongeber:Innen</button></div>`;
     h += sorted(nxt.sessions).map(sessHTML).join('');
   } else {
     h += `<div class="card hero"><span class="pill">Danke!</span><h2>Alle Sessions sind vorbei</h2>
@@ -401,6 +435,109 @@ function setTab(t) {
   render();
 }
 
+// =====================================================================
+// Session-Uhr für Sessiongeber:Innen
+// Zeigt groß, wann es losgeht, wie lange die Session noch läuft und ob
+// Session Plus folgt, dazu passend zur Phase die Tipps vom Plakat
+// „10 Tipps für deine gute Session“ (Doku ab Minute 1 besonders betont).
+// =====================================================================
+const PLUS_MIN = 15;     // Session Plus dauert 15 Minuten
+let uhr = null;          // { id, slot } solange die Uhr offen ist
+let uhrKey = '', uhrTimer = null, wake = null;
+
+// Uhrzeit in Sekunden (mit #zeit=… simuliert)
+function nowSecs() {
+  if (conf.zeit && /^\d{1,2}:\d{2}$/.test(conf.zeit)) {
+    const [h, m] = conf.zeit.split(':').map(Number);
+    return h * 3600 + m * 60 + Math.floor((Date.now() - t0) / 1000);
+  }
+  const d = new Date(); return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+}
+const mmss = s => { s = Math.max(0, Math.ceil(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); };
+
+function uhrSlot() {
+  if (!plan || !uhr) return null;
+  if (uhr.id) { const s = plan.slots.find(sl => sl.sessions.some(x => x.id === uhr.id)); if (s) return s; }
+  if (uhr.slot != null) { const s = plan.slots.find(sl => sl.start === uhr.slot); if (s) return s; }
+  const now = nowMin();   // ohne Angabe: laufender oder nächster Slot
+  return plan.slots.find(s => now < s.end + (s.plus ? PLUS_MIN : 0)) || plan.slots[plan.slots.length - 1];
+}
+
+function openUhr(id, slot) {
+  uhr = { id, slot };
+  const p = new URLSearchParams(location.hash.slice(1)); p.set('uhr', id ? id.slice(0, 8) : (slot != null ? 's' + slot : '1'));
+  history.replaceState(null, '', '#' + p.toString());
+  uhrKey = ''; $('uhr').hidden = false; document.documentElement.style.overflow = 'hidden';
+  paintUhr(); clearInterval(uhrTimer); uhrTimer = setInterval(paintUhr, 1000);
+  keepAwake();
+}
+function closeUhr() {
+  uhr = null; $('uhr').hidden = true; document.documentElement.style.overflow = ''; clearInterval(uhrTimer);
+  const p = new URLSearchParams(location.hash.slice(1)); p.delete('uhr'); history.replaceState(null, '', '#' + p.toString());
+  if (wake) { wake.release().catch(() => {}); wake = null; }
+}
+// Bildschirm anlassen, solange die Uhr offen ist (wo der Browser es kann)
+async function keepAwake() {
+  try { if (uhr && 'wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (e) {}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && uhr) { keepAwake(); paintUhr(); } });
+
+// Phase und Tipp für den aktuellen Moment
+function uhrPhase(s, t) {
+  const st = s.start * 60, en = s.end * 60, pe = en + (s.plus ? PLUS_MIN * 60 : 0);
+  const doku = conf.doku ? `<a class="btn" href="${esc(docLink())}" target="_blank" rel="noopener">Zur Session-Dokumentation</a>` : '';
+  const tip = (n, h, body) => `<div class="h"><b class="n">${n}</b>${h}</div>${body || ''}`;
+  if (t < st) {
+    const soon = st - t <= 120;
+    return { key: 'vor' + soon, pill: soon ? 'Gleich geht’s los' : 'Vor der Session', big: st - t, sub: 'bis zum Start um ' + fmt(s.start) + ' Uhr', bar: 0, on: 0, urgent: soon,
+      tip: tip(9, 'Doku ab Minute 1: Finde jemanden', `<p>Bitte vor dem Start jemanden fragen, der mitschreibt, und eine Karte auf dem Doku-Board anlegen.</p>${doku}`)
+        + `<ul><li><b class="n">2</b>Finde deinen Fokus: Eine Leitfrage genügt</li><li><b class="n">1</b>Trau dich: Es geht um Austausch</li></ul>` };
+  }
+  if (t < en) {
+    const el = t - st, left = en - t, bar = el / (en - st) * 100;
+    const base = { pill: 'Session läuft', big: left, sub: 'bis ' + fmt(s.end) + ' Uhr' + (s.plus ? ', danach Session Plus' : ''), bar, on: 1 };
+    if (el < 5 * 60) return Object.assign(base, { key: 'doku', urgent: true,
+      tip: tip(9, 'Doku ab Minute 1', `<p>Wer dokumentiert? Kurz ansagen und die Karte zur Session anlegen, damit alle später nachlesen können.</p>${doku}`) });
+    if (left <= 5 * 60) return Object.assign(base, { key: 'ende', urgent: true,
+      tip: tip(10, 'Pünktlich enden: Was nehmt ihr mit?', `<p>Kurze Runde zum Abschluss und die wichtigsten Punkte in die Doku.${s.plus ? ' Wer mag, bleibt danach in der Session Plus.' : ''}</p>${doku}`) });
+    if (el < 15 * 60) return Object.assign(base, { key: 'impuls', sub: 'Impuls noch ' + mmss(15 * 60 - el) + ' Min. · Ende ' + fmt(s.end) + ' Uhr',
+      tip: tip(4, 'Kurz impulsieren: Maximal 15 Minuten', '<p>Danach gehört die Zeit dem Austausch.</p>') });
+    return Object.assign(base, { key: 'mitte',
+      tip: '<ul style="margin:0"><li><b class="n">5</b>Bleib flexibel</li><li><b class="n">6</b>Fair moderieren: Alle kommen zu Wort</li><li><b class="n">7</b>Inspiriert euch</li><li><b class="n">8</b>Bewegung: Kommen und Gehen ist okay</li></ul>' });
+  }
+  if (t < pe) return { key: 'plus', pill: 'Session Plus', big: pe - t, sub: 'freiwillige Verlängerung bis ' + fmt(s.end + PLUS_MIN) + ' Uhr', bar: 100, on: 2,
+    tip: tip(10, 'Session Plus', `<p>Die Session ist offiziell vorbei. Wer mag, macht weiter. Ergebnisse bitte in die Doku.</p>${doku}`) };
+  return { key: 'nach', pill: 'Vorbei', big: null, sub: 'Danke für deine Session!', bar: 100, on: 3,
+    tip: tip('✓', 'Danke!', `<p>Schau gern noch einmal in die Doku und ergänze, was fehlt.</p>${doku}`) };
+}
+
+function paintUhr() {
+  if (!uhr) return;
+  const s = uhrSlot(), box = $('uhr');
+  if (!s) { box.innerHTML = '<div class="uhead"><div class="t"></div><button class="uclose" data-u="close" aria-label="Schließen">✕</button></div><div class="ubody">Sessionplan wird geladen …</div>'; return; }
+  const x = uhr.id ? findSession(uhr.id) : null;
+  const ph = uhrPhase(s, nowSecs());
+  const key = s.start + ph.key + (x ? x.id : '');
+  if (key !== uhrKey) {          // Aufbau nur bei Phasenwechsel, damit Links antippbar bleiben
+    uhrKey = key;
+    box.classList.toggle('urgent', !!ph.urgent);
+    const marks = ['Start ' + fmt(s.start), 'Ende ' + fmt(s.end)].concat(s.plus ? ['Plus bis ' + fmt(s.end + PLUS_MIN)] : []);
+    box.innerHTML = `<div class="uhead"><div class="t"><div class="uroom">${x ? esc(x.room) + ' · ' : ''}Session-Uhr</div>
+        <div class="utitle">${x ? esc(x.title) : 'Slot ' + fmt(s.start) + '–' + fmt(s.end) + ' Uhr'}</div></div>
+        <button class="uclose" data-u="close" aria-label="Session-Uhr schließen">✕</button></div>
+      <div class="ubody"><span class="upill">${ph.pill}</span><div class="ubig" id="uBig"></div><div class="usub" id="uSub"></div>
+        <div class="ubar"><i id="uBar"></i></div>
+        <div class="uline">${marks.map((m, i) => `<span class="${i === ph.on || (ph.on === 3 && i === marks.length - 1) ? 'on' : ''}">${m}</span>`).join('')}</div></div>
+      <div class="utip">${ph.tip}</div>
+      <div class="ufoot">Tipps aus „10 Tipps für deine gute Session“ · Bildschirm bleibt an, solange die Uhr offen ist${conf.zeit ? ' · Demo-Uhrzeit' : ''}</div>`;
+  }
+  $('uBig').textContent = ph.big == null ? '✓' : mmss(ph.big);
+  $('uSub').textContent = ph.sub;
+  $('uBar').style.width = ph.bar + '%';
+}
+$('uhr').addEventListener('click', e => { if (e.target.closest('[data-u="close"]')) closeUhr(); });
+
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2600); }
 
 // ---------- Bedienung ----------
@@ -413,6 +550,7 @@ $('view').addEventListener('click', async e => {
   const act = a.dataset.act;
   if (act === 'star') { e.stopPropagation(); toggleMine(id); }
   else if (act === 'open') { open.has(id) ? open.delete(id) : open.add(id); render(); }
+  else if (act === 'uhr') { e.stopPropagation(); openUhr(id || null, a.dataset.slot ? +a.dataset.slot : null); }
   else if (act === 'goslot') { setTab('alle'); const el = document.getElementById('slot-' + a.dataset.slot); if (el) el.scrollIntoView({ behavior:'smooth' }); }
   else if (act === 'reset') { if (confirmInline(a)) { mine.clear(); saveMine(); render(); toast('Plan geleert'); } }
   else if (act === 'share') {
@@ -497,9 +635,16 @@ async function start() {
   if (conf.zeit) document.body.parentElement.classList.add('demo');
   // Reiter „Doku“ öffnet die Session-Dokumentation direkt in TaskCards
   if (conf.doku) { $('docTab').href = docLink(); $('docTab').hidden = false; }
+  // #uhr=<Session-ID-Anfang> | s<Slotbeginn> | 1 öffnet direkt die Session-Uhr
+  const u = new URLSearchParams(location.hash.slice(1)).get('uhr');
+  if (u) uhr = { id: null, slot: /^s\d+$/.test(u) ? +u.slice(1) : null, pre: /^[0-9a-f]{8}$/i.test(u) ? u : null };
   $('view').innerHTML = '<div class="card muted">Lade Sessionplan …</div>';
   document.body.className = 'tab-jetzt';
   await refresh(true);
+  if (uhr) {   // Session-Uhr aus der Adresse wiederherstellen
+    const full = uhr.pre && plan ? plan.slots.flatMap(sl => sl.sessions).find(x => x.id.startsWith(uhr.pre)) : null;
+    openUhr(full ? full.id : null, uhr.slot);
+  }
   setInterval(() => refresh(false), 60000);     // Plan jede Minute neu laden
   setInterval(render, 20000);                   // Restzeiten aktualisieren
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(false); });

@@ -200,7 +200,7 @@ const BC = (() => {
   const embedded = window.parent !== window;
   function goView(file) {
     if (embedded) { window.parent.postMessage({ bcView: file }, '*'); return; }
-    location.href = (file === 'index.html' ? 'index.html?v=2026-11-23d#go' : file + '?v=2026-11-23d' + location.hash);
+    location.href = (file === 'index.html' ? 'index.html?v=2026-11-23e#go' : file + '?v=2026-11-23e' + location.hash);
   }
   function toggleFull() {
     if (embedded) { window.parent.postMessage({ bcFull: true }, '*'); return; }

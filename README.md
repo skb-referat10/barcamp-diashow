@@ -92,6 +92,8 @@ Eine zweite, für Handy und iPad gemachte Ansicht nur mit dem Sessionplan. Sie h
 - **Alle Sessions:** alle Slots mit Suche. Ein Tipp auf ☆ merkt eine Session. Ein Tipp auf die Session klappt die Beschreibung aus der Spalte „Sessionvorschläge“ auf, die automatisch zugeordnet wird. „✓ Doku online“ erscheint, sobald es eine Dokumentation gibt.
 - **Mein Plan:** die gemerkten Sessions als Timeline, mit Hinweis bei zwei Sessions zur gleichen Zeit. Über „Plan teilen“ geht der Plan per Link an andere.
 
+- **Session-Uhr für Sessiongeber:Innen:** über den Knopf im Bereich „Jetzt“ oder in einer aufgeklappten Session („Ich gebe diese Session“). Zeigt groß den Countdown bis zum Start, die Restzeit bis zum Ende und die Session Plus, dazu eine Zeitleiste und passend zur Phase die Tipps vom Plakat „10 Tipps für deine gute Session“. Vor dem Start und in den ersten 5 Minuten wird „Doku ab Minute 1“ hervorgehoben, mit Knopf zur Dokumentation. Der Bildschirm bleibt an, solange die Uhr offen ist. Direkt aufrufbar mit `&uhr=1` am Ende des Links.
+
 Der persönliche Plan wird **nur auf dem eigenen Gerät** gespeichert, ohne Login und Server. Die Ansicht lädt jede Minute neu und lässt sich über „Zum Home-Bildschirm“ wie eine App ablegen.
 
 **Einrichtung durch die Orga:** `plan.html` ohne Zusatz öffnen, die Teilen-Links von Sessionplan und optional Doku-Board einfügen und auf „Link erzeugen“ tippen. Heraus kommen ein Link und ein QR-Code für die Teilnehmenden, z. B.
