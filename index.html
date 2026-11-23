@@ -214,14 +214,16 @@
   #ticker { display:flex; align-items:center; gap:1vw; margin:0 1.5vw 2.2vh 3vw; background:#fff; color:var(--ink); border-radius:999px; overflow:hidden;
     font-size:clamp(14px,1.5vw,26px); height:clamp(34px,5.5vh,64px); box-shadow:0 6px 18px rgba(184,37,58,.3); }
   #ticker .head { background:var(--red); color:#fff; text-transform:uppercase; letter-spacing:.05em; font-weight:800; padding:0 1.2em; height:100%; display:flex; align-items:center; white-space:nowrap; }
-  #ticker .track { flex:1; overflow:hidden; white-space:nowrap; }
-  #ticker .run { display:inline-block; animation:tick 40s linear infinite; }
+  #ticker .track { flex:1; overflow:hidden; white-space:nowrap; contain:paint; }
+  /* eigene Grafikebene: das Laufband läuft auf der GPU weiter, auch wenn gerade eine Folie aufgebaut wird */
+  #ticker .run { display:inline-block; animation:tick 40s linear infinite; will-change:transform; backface-visibility:hidden; }
   #ticker b { color:var(--red); text-transform:uppercase; letter-spacing:.05em; margin-right:.4em; }
   #ticker .sep { color:#a8a8a8; margin:0 1.2em; }
-  @keyframes tick { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+  @keyframes tick { from { transform:translate3d(0,0,0); } to { transform:translate3d(-50%,0,0); } }
 
   .badge-new { display:inline-block; background:var(--ink); color:#fff; font-weight:700; padding:.15em .6em; border-radius:999px; margin-left:.5em; font-size:.5em; vertical-align:middle; }
-  #progress { position:fixed; left:0; bottom:0; height:6px; background:#fff; width:0; z-index:5; }
+  /* Fortschritt per scaleX statt Breite: kein Neu-Layout fünfmal pro Sekunde */
+  #progress { position:fixed; left:0; bottom:0; height:6px; background:#fff; width:100%; z-index:5; transform:scaleX(0); transform-origin:0 50%; will-change:transform; }
   #empty { position:absolute; inset:0; display:none; align-items:center; justify-content:center; font-size:clamp(22px,3vw,48px); color:#fff; font-weight:700; text-align:center; padding:4vw; }
   #toast { position:fixed; top:3vh; left:50%; transform:translateX(-50%); background:#000; color:#fff; padding:12px 24px; border-radius:999px; font-weight:700; font-size:clamp(16px,1.6vw,26px); opacity:0; transition:opacity .5s; z-index:10; }
   #toast.show { opacity:1; }
@@ -353,7 +355,7 @@
 <script>
 // Versionskennung: hängt an den Adressen der anderen Ansichten, damit der Browser nach einem Update
 // keine veralteten Dateien aus dem Zwischenspeicher nimmt (bei Änderungen hochzählen)
-const BUILD = '2026-11-23c';
+const BUILD = '2026-11-23d';
 
 // Wird die Diashow versehentlich innerhalb einer Ebene geöffnet: stattdessen die äußere Diashow zeigen
 if (window.parent !== window) {
@@ -1302,8 +1304,9 @@ function scheduleNext() {
 // Fortschrittsbalken und Uhr
 setInterval(() => {
   const p = paused || !cards.length ? 0 : Math.min(1, (Date.now() - slideStart) / slideDur);
-  $('progress').style.width = (p * 100) + '%';
-  $('clock').textContent = nowDate().toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
+  $('progress').style.transform = `scaleX(${p.toFixed(4)})`;
+  const hm = nowDate().toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
+  if ($('clock').textContent !== hm) $('clock').textContent = hm;   // nur bei Minutenwechsel neu setzen
 }, 200);
 
 // Laufband jede halbe Minute prüfen (Slot-Wechsel nach Uhrzeit)
