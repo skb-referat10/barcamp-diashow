@@ -89,6 +89,7 @@ Zeigt den Tagesablauf als Timeline. Die Diashow liest ihn aus der Karte **„Zei
 - **30-Sekunden-Timer** als großer Ring. Ab 10 Sekunden wird er hellrot, ab 5 Sekunden rot, bei 0 wird die Fläche rot.
 - **Leertaste** (oder Klick auf den Ring) startet sofort die **nächste Vorstellung**, beliebig oft. Ein Zähler zeigt „Vorstellung #12“.
 - **Ton wählbar** (Taste **T** oder „Ton wählen“, mit ▶ Probe): Horn (Stadion), Schiffshorn, Pfiff, Buzzer, sanftes Ding, Kuckuck, Schulgong oder kein Ton. Dazu Ticken in den letzten 3 Sekunden (leise, deutlich, aus) und Lautstärke. Die Auswahl wird gemerkt.
+- **Eigene Sounddatei** als Endsignal: im Ton-Menü „Datei wählen …“ (MP3, M4A, WAV oder OGG, max. 10 MB). Die Lautstärke wird automatisch angeglichen, lange Dateien nach 12 Sekunden ausgeblendet. Die Datei wird nirgendwo hochgeladen, sondern nur in diesem Browser auf diesem Rechner gespeichert und bleibt auch nach dem Neuladen erhalten.
 - Daneben das **Live-Raster** aus Räumen und Zeitslots. Es wird alle 10 Sekunden aktualisiert und hebt neue Einträge hervor: „17 von 24 Plätzen belegt“.
 - **QR-Code statt Timer** (Taste **Q** oder Knopf „QR-Code“): Nach der Planung zeigt die linke Fläche groß den QR-Code zum mobilen Sessionplan. Leertaste oder „Zurück zum Timer“ wechselt zurück.
 

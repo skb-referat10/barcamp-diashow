@@ -6,9 +6,9 @@
 <title>Sessionplanung · Bremer BildungsBarcamp</title>
 <link rel="icon" href="assets/favicon.png">
 <link rel="stylesheet" href="https://fonts.bunny.net/css?family=noto-sans:400,600,700,800">
-<link rel="stylesheet" href="barcamp.css?v=2026-11-25b">
+<link rel="stylesheet" href="barcamp.css?v=2026-11-25c">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-<script src="taskcards.js?v=2026-11-25b"></script>
+<script src="taskcards.js?v=2026-11-25c"></script>
 <style>
   /* Links der Vorstellungs-Timer, rechts das Live-Raster Räume × Zeitslots */
   .main { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.35fr); gap:2vw; }
@@ -60,6 +60,11 @@
   .mrow select { flex:1; padding:10px; font:inherit; font-size:15px; border-radius:10px; border:1px solid #cfcfcf; }
   .menubox button { border:0; border-radius:999px; font:inherit; font-weight:700; padding:9px 14px; cursor:pointer; background:var(--grey); }
   .menubox input[type=range] { width:100%; accent-color:var(--red); }
+  .mfile { display:flex; gap:8px; align-items:center; }
+  .mfile .fname { flex:1; min-width:0; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink); }
+  .mfile input[type=file] { display:none; }
+  .mfile label.pick { margin:0; display:inline-block; border-radius:999px; padding:9px 14px; background:var(--grey); color:var(--ink); font-size:15px; cursor:pointer; }
+  .menubox .mhint { font-size:12px; color:var(--muted); margin:6px 0 0; }
   .menubox .close { margin-top:18px; width:100%; background:var(--red); color:#fff; font-size:16px; }
 
   /* Live-Raster */
@@ -163,9 +168,79 @@ const END_SOUNDS = {
   gong:    { label:'Schulgong (3 Töne)', play() { bell(392, 0, 0.5, 2.6); bell(330, 0.75, 0.5, 2.6); bell(262, 1.5, 0.55, 4.0); } },
   none:    { label:'Kein Ton (nur Bild)', play() {} },
 };
+// ---------- Eigene Sounddatei als Endsignal ----------
+// Die Datei bleibt nur in diesem Browser (IndexedDB), sie wird nirgendwo hochgeladen.
+const MAX_FILE_MB = 10, MAX_PLAY_SEC = 12;
+let CUSTOM = null;          // { name, data:ArrayBuffer, buf:AudioBuffer|null, gain }
+let customSrc = null;       // gerade laufende Wiedergabe
+const idb = (mode, fn) => new Promise((res, rej) => {
+  const rq = indexedDB.open('barcampDiashow', 1);
+  rq.onupgradeneeded = () => rq.result.createObjectStore('files');
+  rq.onerror = () => rej(rq.error);
+  rq.onsuccess = () => { const tx = rq.result.transaction('files', mode); const r = fn(tx.objectStore('files'));
+    tx.oncomplete = () => res(r && r.result); tx.onerror = () => rej(tx.error); };
+});
+async function loadCustom() {
+  try { const f = await idb('readonly', st => st.get('endSound')); if (f && f.data) { CUSTOM = { name: f.name, data: f.data, buf: null, gain: 1 }; addCustomOption(); } } catch (e) {}
+}
+function addCustomOption() {
+  if (CUSTOM) END_SOUNDS.custom = { label: 'Eigene Datei: ' + CUSTOM.name, play: playCustom };
+  else delete END_SOUNDS.custom;
+}
+// Datei dekodieren und auf eine angenehme Lautstärke bringen (Spitze ca. 0,6 wie die eingebauten Töne)
+async function decodeCustom() {
+  const a = audio(); if (!a || !CUSTOM) return null;
+  if (!CUSTOM.buf) {
+    CUSTOM.buf = await new Promise((res, rej) => a.decodeAudioData(CUSTOM.data.slice(0), res, rej));
+    let peak = 0;
+    for (let c = 0; c < CUSTOM.buf.numberOfChannels; c++) {
+      const d = CUSTOM.buf.getChannelData(c), step = Math.max(1, Math.floor(d.length / 200000));
+      for (let i = 0; i < d.length; i += step) { const v = Math.abs(d[i]); if (v > peak) peak = v; }
+    }
+    CUSTOM.gain = peak > 0 ? Math.min(4, 0.6 / peak) : 1;
+  }
+  return CUSTOM.buf;
+}
+async function playCustom() {
+  const a = audio(); if (!a || !T.sound) return;
+  let buf; try { buf = await decodeCustom(); } catch (e) { BC.flash('Die Sounddatei lässt sich nicht abspielen'); return; }
+  if (!buf) return;
+  stopCustom();
+  const src = a.createBufferSource(), g = a.createGain(), t = a.currentTime;
+  src.buffer = buf; g.gain.value = CUSTOM.gain;
+  if (buf.duration > MAX_PLAY_SEC) {   // lange Dateien nach 12 s sanft ausblenden
+    g.gain.setValueAtTime(CUSTOM.gain, t + MAX_PLAY_SEC - 1.5);
+    g.gain.linearRampToValueAtTime(0.0001, t + MAX_PLAY_SEC);
+    src.stop(t + MAX_PLAY_SEC + 0.05);
+  }
+  src.connect(g).connect(MASTER); src.start(t); customSrc = src;
+}
+function stopCustom() { if (customSrc) { try { customSrc.stop(); } catch (e) {} customSrc = null; } }
+async function setCustomFile(file) {
+  if (!file) return;
+  if (file.size > MAX_FILE_MB * 1024 * 1024) { BC.flash(`Datei zu groß (max. ${MAX_FILE_MB} MB)`); return; }
+  const data = await file.arrayBuffer();
+  const prev = CUSTOM;
+  CUSTOM = { name: file.name, data, buf: null, gain: 1 };
+  try { await decodeCustom(); }
+  catch (e) { CUSTOM = prev; BC.flash('Dieses Format kann der Browser nicht abspielen (MP3, M4A, WAV oder OGG gehen)'); return; }
+  try { await idb('readwrite', st => st.put({ name: file.name, data }, 'endSound')); }
+  catch (e) { BC.flash('Konnte die Datei nicht speichern, sie gilt nur bis zum Neuladen'); }
+  addCustomOption();
+  T.endSound = 'custom'; BC.writeCfg({ pitchEnd: 'custom' });
+  draw(); playCustom();
+}
+async function removeCustom() {
+  stopCustom(); CUSTOM = null; addCustomOption();
+  try { await idb('readwrite', st => st.delete('endSound')); } catch (e) {}
+  if (T.endSound === 'custom') { T.endSound = 'horn'; BC.writeCfg({ pitchEnd: 'horn' }); }
+  draw();
+}
+loadCustom();
+
 const TICKS = { soft:'leises Tock', clear:'deutliches Ticken', off:'kein Ticken' };
 
-function endSound() { (END_SOUNDS[T.endSound] || END_SOUNDS.horn).play(); }
+function endSound() { stopCustom(); (END_SOUNDS[T.endSound] || END_SOUNDS.horn).play(); }
 function tick(last) {
   if (T.tick === 'off') return;
   if (T.tick === 'clear') tone(last ? 1175 : 880, 0, 0.06, 0.3, 'triangle');
@@ -174,7 +249,7 @@ function tick(last) {
 
 // ---------- Steuerung ----------
 function startNext() {
-  audio();
+  audio(); stopCustom();
   T.count++; sessionStorage.setItem('pitchCount', T.count);
   T.end = Date.now() + T.dur * 1000; T.state = 'run'; T.lastBeep = null;
   draw();
@@ -316,6 +391,11 @@ function menuHTML() {
     <h2>Ton für die Vorstellungen</h2>
     <label>Signal am Ende</label>
     <div class="mrow"><select id="mEnd">${opts(END_SOUNDS, T.endSound)}</select><button data-act="tryEnd">▶ Probe</button></div>
+    <label>Eigene Sounddatei als Signal</label>
+    <div class="mfile"><span class="fname">${CUSTOM ? BC.esc(CUSTOM.name) : 'keine Datei gewählt'}</span>
+      <label class="pick" for="mFile">${CUSTOM ? 'Andere Datei …' : 'Datei wählen …'}</label><input id="mFile" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac">
+      ${CUSTOM ? '<button data-act="rmFile">Entfernen</button>' : ''}</div>
+    <p class="mhint">MP3, M4A, WAV oder OGG, max. ${MAX_FILE_MB} MB. Bleibt nur in diesem Browser auf diesem Rechner. Lange Dateien werden nach ${MAX_PLAY_SEC} Sekunden ausgeblendet.</p>
     <label>In den letzten 3 Sekunden</label>
     <div class="mrow"><select id="mTick">${opts(TICKS, T.tick)}</select><button data-act="tryTick">▶ Probe</button></div>
     <label>Lautstärke <span id="mVolV">${Math.round(T.vol * 100)} %</span></label>
@@ -325,6 +405,7 @@ function menuHTML() {
 // Änderungen im Menü sofort übernehmen und merken
 document.addEventListener('change', e => {
   if (e.target.id === 'mEnd') { T.endSound = e.target.value; BC.writeCfg({ pitchEnd: T.endSound }); audio(); endSound(); }
+  if (e.target.id === 'mFile') { setCustomFile(e.target.files[0]); e.target.value = ''; }
   if (e.target.id === 'mTick') { T.tick = e.target.value; BC.writeCfg({ pitchTick: T.tick }); }
 });
 document.addEventListener('input', e => {
@@ -335,7 +416,7 @@ document.addEventListener('input', e => {
 document.addEventListener('click', e => {
   const a = e.target.closest('[data-act]'); if (!a) return;
   ({ go: startNext, pause: togglePause, minus: () => setDur(T.dur - 5), plus: () => setDur(T.dur + 5),
-     sound: toggleSound, reset: resetCount, qr: toggleQr, menu: toggleMenu, close: toggleMenu,
+     sound: toggleSound, reset: resetCount, qr: toggleQr, menu: toggleMenu, close: toggleMenu, rmFile: removeCustom,
      tryEnd: () => { audio(); endSound(); }, tryTick: () => { audio(); [3, 2, 1].forEach((n, i) => setTimeout(() => tick(n === 1), i * 1000)); },
   })[a.dataset.act]();
 });

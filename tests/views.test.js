@@ -117,6 +117,12 @@ const txt = w => w.document.body.textContent.replace(/\s+/g, ' ');
   check('Live: neue Session wird hervorgehoben, 20 von 24', d.querySelectorAll('.cell.new').length === 1 && /20 von 24/.test(txt(w)));
   fx.p.cards.pop();
 
+  // Ton-Menü mit eigener Sounddatei
+  d.querySelector('[data-act="menu"]').click(); await sleep(20);
+  check('Ton-Menü bietet eigene Sounddatei an', !!d.querySelector('#mFile') && /Eigene Sounddatei/.test(d.querySelector('.menubox').textContent));
+  check('Ohne Datei kein Eintrag „Eigene Datei“ in der Liste', ![...d.querySelectorAll('#mEnd option')].some(o => o.value === 'custom'));
+  d.querySelector('.menubox .close').click(); await sleep(10);
+
   // QR-Tafel zur mobilen Ansicht
   check('Ohne Handy-Link kein QR-Knopf', !d.querySelector('[data-act="qr"]'));
   w = open('sessionplanung.html', `#plan=${PLAN_ID}.t&qr=${encodeURIComponent('https://x.test/plan.html')}`); d = w.document; await sleep(200);
