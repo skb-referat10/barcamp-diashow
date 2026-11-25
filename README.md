@@ -136,6 +136,8 @@ Zum Ausprobieren lässt sich mit `&zeit=10:20` eine Uhrzeit simulieren.
 | Leertaste | Pause |
 | F | Vollbild an/aus |
 | R | sofort neu laden |
+| D | Folie „Doku-Stand“ sofort einblenden |
+| J | Folie „Jetzt läuft“ sofort einblenden |
 | S | Einstellungen |
 
 ## Aufbau der TaskCards-Boards

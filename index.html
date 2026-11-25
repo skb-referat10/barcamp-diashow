@@ -326,7 +326,7 @@
     <label class="check"><input type="checkbox" id="inFull" checked> Im Vollbild starten (Esc beendet, F schaltet um)</label>
     <button id="btnStart">Diashow starten</button>
     <div class="err" id="setupErr"></div>
-    <p class="hint" style="margin-top:18px">Tasten: ← → blättern · Leertaste Pause · F Vollbild · R sofort neu laden · S Einstellungen</p>
+    <p class="hint" style="margin-top:18px">Tasten: ← → blättern · Leertaste Pause · F Vollbild · R sofort neu laden · D Doku-Stand · J Jetzt läuft · S Einstellungen</p>
   </div>
 </div>
 
@@ -355,7 +355,7 @@
 <script>
 // Versionskennung: hängt an den Adressen der anderen Ansichten, damit der Browser nach einem Update
 // keine veralteten Dateien aus dem Zwischenspeicher nimmt (bei Änderungen hochzählen)
-const BUILD = '2026-11-25a';
+const BUILD = '2026-11-25b';
 
 // Wird die Diashow versehentlich innerhalb einer Ebene geöffnet: stattdessen die äußere Diashow zeigen
 if (window.parent !== window) {
@@ -1460,7 +1460,16 @@ document.addEventListener('keydown', e => {
   else if (e.key === '3') showView('sessionplanung.html');
   else if (e.key.toLowerCase() === 'r') { refresh(); toast('Lade neu …'); }
   else if (e.key.toLowerCase() === 's') { $('setup').style.display = 'flex'; }
+  else if (e.key.toLowerCase() === 'd') showPlanSlide('overview');   // Doku-Stand sofort zeigen
+  else if (e.key.toLowerCase() === 'j') showPlanSlide('now');        // „Jetzt läuft“ sofort zeigen
 });
+// Sessionplan-Folie per Taste einblenden; danach läuft die Diashow normal weiter
+function showPlanSlide(type) {
+  if (!plan) { toast('Kein Sessionplan geladen: Link in den Einstellungen eintragen'); return; }
+  if (type === 'now' && !planNow()) { toast('Gerade läuft kein Zeitslot'); return; }
+  if (type === 'overview' && !plan.slots.some(s => s.sessions.length)) { toast('Noch keine Sessions im Plan'); return; }
+  sinceExtra = 0; showExtra({ type });
+}
 // Bei Größenänderung (z. B. Vollbild) aktuelle Folie neu aufbauen
 let resizeT = null;
 window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => {

@@ -117,6 +117,12 @@ const check = (name, cond, info) => { console.log((cond ? '✔ ' : '✘ ') + nam
   const shown = [...$('slideWrap').querySelectorAll('.slide')].pop();
   check('Collage wird in der Rotation gezeigt', ev('extraList().some(x=>x.type==="collage")') && shown.className.includes('slide'), shown.className);
 
+  // Tasten D und J blenden Sessionplan-Folien sofort ein
+  w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'd' })); await sleep(30);
+  check('Taste D zeigt sofort den Doku-Stand', [...$('slideWrap').querySelectorAll('.slide')].pop().className.includes('overview'));
+  w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'j' })); await sleep(30);
+  check('Taste J zeigt sofort „Jetzt läuft“', [...$('slideWrap').querySelectorAll('.slide')].pop().className.includes('now'));
+
   // 11) Wechsel zu Zeitplan/Sessionplanung nimmt Sessionplan und Hashtag mit
   ev(`cfg.demo=false; cfg.plan='https://hb.taskcards.app/#/board/${PLAN_ID}?token=abc'; cfg.tag='#3B12'; cfg.planQr='';`);
   const vl = ev(`viewLink('zeitplan.html')`);
