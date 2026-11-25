@@ -102,6 +102,7 @@ const check = (name, cond, info) => { console.log((cond ? '✔ ' : '✘ ') + nam
   ev(`cfg.demo=false; photos.length=0; for(let i=0;i<100;i++) photos.push('blob:foto'+i); cfg.wall='';`);
   const ex = ev('extraList().map(x=>x.type)');
   check('100 Fotos → Collage statt 100 Einzelfolien', ex.includes('collage') && !ex.includes('photo') && ex.length <= 4, ex);
+  check('Nur Collage als Einschub: „Jetzt läuft“ und „Doku-Stand“ kommen beide dran', ex.includes('now') && ex.includes('overview'), ex);
   const col = ev('buildCollage()');
   const n = col.querySelectorAll('.tile').length;
   check('Collage hat 7–9 Kacheln', n >= 7 && n <= 9, n);

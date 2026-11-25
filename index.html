@@ -355,7 +355,7 @@
 <script>
 // Versionskennung: hängt an den Adressen der anderen Ansichten, damit der Browser nach einem Update
 // keine veralteten Dateien aus dem Zwischenspeicher nimmt (bei Änderungen hochzählen)
-const BUILD = '2026-11-23f';
+const BUILD = '2026-11-25a';
 
 // Wird die Diashow versehentlich innerhalb einer Ebene geöffnet: stattdessen die äußere Diashow zeigen
 if (window.parent !== window) {
@@ -1106,7 +1106,13 @@ function extraList() {
   if (plan && cfg.overview && plan.slots.some(s => s.sessions.length)) core.push({ type:'overview' });
   if (!base.length) return core;
   if (!core.length) return base;
-  return base.flatMap((x, i) => [core[i % core.length], x]);
+  // abwechselnd Sessionplan-Folie und Einschub; Länge = kgV, damit jede Folie drankommt
+  // (vorher fiel „Doku-Stand“ weg, wenn es z. B. nur die Collage als Einschub gab)
+  const gcd = (a, b) => b ? gcd(b, a % b) : a;
+  const len = base.length * core.length / gcd(base.length, core.length);
+  const out = [];
+  for (let i = 0; i < len; i++) out.push(core[i % core.length], base[i % base.length]);
+  return out;
 }
 
 // Folie „Jetzt läuft“: alle Räume mit der aktuellen (oder nächsten) Session
