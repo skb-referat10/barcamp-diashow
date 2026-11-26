@@ -356,7 +356,7 @@
 <script>
 // Versionskennung: hängt an den Adressen der anderen Ansichten, damit der Browser nach einem Update
 // keine veralteten Dateien aus dem Zwischenspeicher nimmt (bei Änderungen hochzählen)
-const BUILD = '2026-11-26a';
+const BUILD = '2026-11-26b';
 
 // Wird die Diashow versehentlich innerhalb einer Ebene geöffnet: stattdessen die äußere Diashow zeigen
 if (window.parent !== window) {
@@ -918,7 +918,11 @@ function buildSlide(c) {
 
   if (kind === 'link') content.appendChild(qrBlock(c._links[0], 'linkqr'));
   else if (kind === 'cloud') {
-    content.innerHTML = '<div class="cloud"></div><div class="cloud-hint">Ganze Doku lesen → QR-Code rechts unten</div>';
+    // Hinweis passend zum QR-Code rechts unten (Handy-Sessionplan oder direkt das Doku-Board)
+    const hint = cfg.railQr !== 'doc' && mobileLink()
+      ? 'Ganze Doku lesen → QR-Code „Sessionplan & Doku“ rechts unten, dort im Reiter „Doku“'
+      : 'Ganze Doku lesen → QR-Code „Alle Ergebnisse“ rechts unten';
+    content.innerHTML = `<div class="cloud"></div><div class="cloud-hint">${hint}</div>`;
   } else if (kind === 'text') {
     content.innerHTML = `<div class="text">${sanitize(c._body)}</div>`;
   }
