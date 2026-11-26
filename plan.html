@@ -102,7 +102,8 @@
   #uhr .utip ul { margin:8px 0 0; padding-left:0; list-style:none; font-size:15px; line-height:1.5; }
   #uhr .utip li { display:flex; align-items:center; margin:5px 0; }
   #uhr .utip .btn { margin-top:12px; display:inline-block; text-decoration:none; }
-  #uhr.urgent .utip { box-shadow:0 0 0 4px #000; }
+  #uhr.urgent .utip { box-shadow:0 0 0 5px rgba(255,255,255,.45); animation:uglow 2s ease-in-out infinite; }
+  @keyframes uglow { 50% { box-shadow:0 0 0 10px rgba(255,255,255,.2); } }
   #uhr .ufoot { text-align:center; font-size:12px; opacity:.8; margin-top:10px; }
 
   /* Mein Plan */

@@ -6,9 +6,9 @@
 <title>Sessionplanung · Bremer BildungsBarcamp</title>
 <link rel="icon" href="assets/favicon.png">
 <link rel="stylesheet" href="https://fonts.bunny.net/css?family=noto-sans:400,600,700,800">
-<link rel="stylesheet" href="barcamp.css?v=2026-11-25c">
+<link rel="stylesheet" href="barcamp.css?v=2026-11-26a">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-<script src="taskcards.js?v=2026-11-25c"></script>
+<script src="taskcards.js?v=2026-11-26a"></script>
 <style>
   /* Links der Vorstellungs-Timer, rechts das Live-Raster Räume × Zeitslots */
   .main { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.35fr); gap:2vw; }
@@ -20,14 +20,15 @@
   .ring { position:relative; width:min(34vw, 44vh); aspect-ratio:1; margin:1.5vh 0; flex:none; cursor:pointer; }
   .main.solo .ring { width:min(60vw, 48vh); }
   .ring svg { width:100%; height:100%; transform:rotate(-90deg); }
-  .ring .bg { fill:none; stroke:var(--grey); stroke-width:9; }
-  .ring .fg { fill:none; stroke:var(--black); stroke-width:9; stroke-linecap:round; transition:stroke .3s; }
+  .ring .bg { fill:none; stroke:var(--grey); stroke-width:7; }
+  /* Ring in Barcamp-Rot statt Schwarz: Schwarz-Weiß-Rot wirkte zu sehr wie eine Reichsflagge */
+  .ring .fg { fill:none; stroke:var(--red); stroke-width:7; stroke-linecap:round; transition:stroke .3s; }
   .ring .num { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
   .ring .num b { font-size:clamp(50px,min(11vw,17vh),220px); font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
   .main.solo .ring .num b { font-size:clamp(60px,min(17vw,19vh),320px); }
   .ring .num span { color:var(--muted); font-weight:700; font-size:clamp(13px,1.3vw,24px); margin-top:.6vh; }
-  .timer.warn .fg { stroke:var(--red2); }
-  .timer.crit .fg { stroke:var(--red); }
+  /* Steigerung über die Zahl: ab 10 s rot, ab 5 s zusätzlich pulsierend */
+  .timer.warn .ring .num b { color:var(--red); }
   .timer.crit .ring .num b { color:var(--red); animation:beat 1s ease-in-out infinite; }
   @keyframes beat { 0%,100% { transform:scale(1); } 15% { transform:scale(1.12); } }
   .timer.done { background:linear-gradient(160deg, var(--red), var(--red2)); color:#fff; animation:flash 1s ease-in-out 3; }
